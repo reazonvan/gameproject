@@ -3001,3 +3001,21 @@
 2025-03-30 03:44:03,492 - chat_logger - DEBUG - [MODEL] Обновление статуса online для пользователя reazonvan (ID: 2)
 2025-03-30 03:44:03,493 - chat_logger - DEBUG - [MODEL] Обновлен только статус online для пользователя reazonvan
 2025-03-30 03:44:03,494 - chat_logger - INFO - [CHAT] Отправлены статусы 1 пользователей
+2025-03-30 03:44:13,359 - chat_logger - INFO - [CHAT] Запрос статусов пользователей от inexpert (ID: 3)
+2025-03-30 03:44:13,362 - chat_logger - DEBUG - [MODEL] Обновление статуса online для пользователя reazonvan (ID: 2)
+2025-03-30 03:44:13,363 - chat_logger - DEBUG - [MODEL] Обновлен только статус online для пользователя reazonvan
+2025-03-30 03:44:13,363 - chat_logger - INFO - [CHAT] Отправлены статусы 1 пользователей
+2025-03-30 03:44:23,350 - chat_logger - INFO - [CHAT] Запрос статусов пользователей от inexpert (ID: 3)
+2025-03-30 03:44:23,351 - chat_logger - INFO - [VIEW] Запрос количества пользователей онлайн. Результат: 2
+2025-03-30 03:44:23,373 - chat_logger - DEBUG - [MODEL] Обновление статуса online для пользователя reazonvan (ID: 2)
+2025-03-30 03:44:23,375 - chat_logger - DEBUG - [MODEL] Обновлен только статус online для пользователя reazonvan
+2025-03-30 03:44:23,376 - chat_logger - INFO - [CHAT] Отправлены статусы 1 пользователей
+2025-03-30 03:44:33,397 - chat_logger - INFO - [CHAT] Запрос статусов пользователей от inexpert (ID: 3)
+2025-03-30 03:44:33,401 - chat_logger - DEBUG - [MODEL] Обновление статуса online для пользователя reazonvan (ID: 2)
+2025-03-30 03:44:33,403 - chat_logger - DEBUG - [MODEL] Обновлен только статус online для пользователя reazonvan
+2025-03-30 03:44:33,403 - chat_logger - INFO - [CHAT] Отправлены статусы 1 пользователей
+2025-03-30 03:44:43,364 - chat_logger - INFO - [CHAT] Запрос статусов пользователей от inexpert (ID: 3)
+2025-03-30 03:44:43,368 - chat_logger - DEBUG - [MODEL] Обновление статуса online для пользователя reazonvan (ID: 2)
+2025-03-30 03:44:43,369 - chat_logger - DEBUG - [MODEL] Обновлен только статус online для пользователя reazonvan
+2025-03-30 03:44:43,369 - chat_logger - INFO - [CHAT] Отправлены статусы 1 пользователей
+2025-03-30 03:44:53,348 - chat_logger - INFO - [VIEW] Запрос количества пользователей онлайн. Результат: 2
