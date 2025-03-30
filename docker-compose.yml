@@ -1,28 +1,33 @@
-﻿version: "3.8"
+﻿# Версия формата файла docker-compose (3.8 поддерживает современные функции Docker)
+version: "3.8"
 
+# Определение сервисов приложения
 services:
+  # Сервис веб-приложения Django
   web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
-      - ./media:/app/media
-      - ./static:/app/staticfiles
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/gamedb
+    build: .                    # Собирать из Dockerfile в текущей директории
+    command: python manage.py runserver 0.0.0.0:8000  # Команда для запуска Django-сервера разработки
+    volumes:                     # Монтирование томов (связывание локальных директорий с директориями в контейнере)
+      - .:/app                   # Монтируем текущую директорию в /app внутри контейнера (для разработки)
+      - ./media:/app/media       # Монтируем директорию media для сохранения загружаемых файлов
+      - ./static:/app/staticfiles  # Монтируем директорию static для статических файлов
+    ports:                       # Проброс портов (связывание портов хоста и контейнера)
+      - "8000:8000"              # Доступ к приложению через порт 8000 на хосте
+    depends_on:                  # Зависимости (этот сервис запустится после указанных)
+      - db                       # Зависимость от сервиса базы данных
+    environment:                 # Переменные окружения для контейнера
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/InexShop  # URL подключения к базе данных
 
+  # Сервис базы данных PostgreSQL
   db:
-    image: postgres:13
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=gamedb
+    image: postgres:13           # Используем образ PostgreSQL версии 13
+    volumes:                     # Монтирование томов
+      - postgres_data:/var/lib/postgresql/data/  # Сохраняем данные PostgreSQL в именованном томе
+    environment:                 # Переменные окружения для PostgreSQL
+      - POSTGRES_USER=postgres   # Имя пользователя для базы данных
+      - POSTGRES_PASSWORD=postgres  # Пароль для базы данных
+      - POSTGRES_DB=InexShop     # Имя базы данных
 
+# Определение именованных томов
 volumes:
-  postgres_data:
+  postgres_data:                 # Том для хранения данных PostgreSQL (сохраняется между перезапусками)

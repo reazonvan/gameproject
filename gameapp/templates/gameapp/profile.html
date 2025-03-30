@@ -1,0 +1,920 @@
+{% extends 'gameapp/base.html' %}
+{% load static %}
+
+{% block title %}Профиль: {{ profile_user.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3a0ca3;
+        --accent-color: #7209b7;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        --hover-shadow: 0 15px 35px rgba(67, 97, 238, 0.15);
+        --border-radius: 12px;
+    }
+    
+    body {
+        background-color: #f5f7fa;
+    }
+    
+    .profile-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+        z-index: -1;
+    }
+    
+    .profile-header {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 20px;
+    }
+    
+    .profile-header h2 {
+        color: var(--secondary-color);
+        font-weight: 700;
+    }
+    
+    .container {
+        max-width: 1200px;
+        position: relative;
+    }
+    
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        box-shadow: var(--hover-shadow);
+        transform: translateY(-5px);
+    }
+    
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1.25rem;
+    }
+    
+    .card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--secondary-color);
+    }
+    
+    /* Стили для аватарки */
+    .avatar-upload-container {
+        position: relative;
+        width: 160px;
+        margin: 10px auto 20px;
+    }
+    
+    .current-avatar-container {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        cursor: pointer;
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 4px solid white;
+    }
+    
+    .current-avatar-container:hover {
+        transform: scale(1.03);
+        box-shadow: 0 15px 35px rgba(67, 97, 238, 0.25);
+    }
+    
+    .img-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.5s ease;
+    }
+    
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.8));
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        color: white;
+    }
+    
+    .avatar-overlay i {
+        font-size: 28px;
+        margin-bottom: 8px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .current-avatar-container:hover .avatar-overlay {
+        opacity: 1;
+    }
+    
+    .avatar-input {
+        display: none;
+    }
+    
+    .btn-update-avatar {
+        margin-top: 12px;
+        width: 100%;
+        transition: all 0.3s ease;
+        border-radius: 30px;
+        font-size: 14px;
+        padding: 10px 15px;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.2);
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        border: none;
+    }
+    
+    .btn-update-avatar:hover:not(:disabled) {
+        box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .btn-update-avatar:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .avatar-changed .current-avatar-container {
+        border: 4px solid var(--primary-color);
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 15px rgba(67, 97, 238, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+        }
+    }
+    
+    /* Стили для информационного блока */
+    .info-row {
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(0,0,0,0.03);
+        transition: all 0.2s ease;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-row:hover {
+        background-color: rgba(67, 97, 238, 0.03);
+    }
+    
+    .info-label {
+        color: #6c757d;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .info-value {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 500;
+        color: #343a40;
+    }
+    
+    /* Стили для карточек предложений и отзывов */
+    .list-group-item {
+        border: none;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .list-group-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Бейджи */
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 0.8em;
+        border-radius: 30px;
+    }
+    
+    .badge.bg-primary {
+        background: linear-gradient(45deg, var(--primary-color), #4895ef) !important;
+    }
+    
+    .badge.bg-success {
+        background: linear-gradient(45deg, #2ecc71, #27ae60) !important;
+    }
+    
+    .badge.bg-warning {
+        background: linear-gradient(45deg, #f39c12, #f1c40f) !important;
+    }
+    
+    .badge.bg-danger {
+        background: linear-gradient(45deg, #e74c3c, #c0392b) !important;
+    }
+    
+    .badge.bg-secondary {
+        background: linear-gradient(45deg, #95a5a6, #7f8c8d) !important;
+    }
+    
+    /* Стили для статистики */
+    .list-group-flush .list-group-item {
+        background-color: transparent;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 12px 0;
+        margin-bottom: 0;
+        box-shadow: none;
+    }
+    
+    .list-group-flush .list-group-item:last-child {
+        border-bottom: none;
+    }
+    
+    /* Имя пользователя */
+    .card-title {
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 10px;
+    }
+    
+    /* Кнопки */
+    .btn-sm {
+        border-radius: 20px;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.8rem;
+        font-weight: 500;
+    }
+    
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    /* Верификация аккаунта */
+    .verification-badge {
+        animation: badge-pulse 2s infinite;
+    }
+    
+    @keyframes badge-pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    /* Рейтинг */
+    .rating-stars {
+        letter-spacing: 3px;
+    }
+    
+    .rating-value {
+        line-height: 1;
+    }
+    
+    /* Календарь активности */
+    .activity-calendar {
+        min-height: 120px;
+        margin-top: 10px;
+    }
+    
+    .activity-calendar .cal-heatmap-container {
+        width: 100%;
+    }
+    
+    .activity-legend {
+        display: flex;
+        justify-content: center;
+    }
+    
+    .activity-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        display: inline-block;
+    }
+    
+    .activity-dot-0 {
+        background-color: #ebedf0;
+    }
+    
+    .activity-dot-1 {
+        background-color: #c6e48b;
+    }
+    
+    .activity-dot-2 {
+        background-color: #7bc96f;
+    }
+    
+    .activity-dot-3 {
+        background-color: #239a3b;
+    }
+    
+    .activity-dot-4 {
+        background-color: #196127;
+    }
+    
+    /* Временная шкала */
+    .timeline {
+        position: relative;
+        padding: 0;
+    }
+    
+    .timeline-item {
+        position: relative;
+        display: flex;
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .timeline-item:last-child {
+        border-bottom: none;
+    }
+    
+    .timeline-marker {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .timeline-content {
+        flex-grow: 1;
+    }
+    
+    .timeline-title {
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    
+    .timeline-date {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    /* Адаптивность для мобильных устройств */
+    @media (max-width: 768px) {
+        .card {
+            margin-bottom: 20px;
+        }
+        
+        .info-row {
+            padding: 12px 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-background"></div>
+<div class="container my-4">
+    <!-- Уведомления -->
+    {% if messages %}
+    <div class="row">
+        <div class="col-12 mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Панель информации о пользователе -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if is_own_profile %}
+                        <div class="mb-3">
+                            <div class="avatar-upload-container">
+                                <div class="current-avatar-container">
+                                    {% if profile.avatar %}
+                                        <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" class="rounded-circle img-preview" id="avatar-preview">
+                                    {% else %}
+                                        <img src="{% static 'gameapp/images/default-avatar.png' %}" alt="{{ profile_user.username }}" class="rounded-circle img-preview" id="avatar-preview">
+                                    {% endif %}
+                                    <div class="avatar-overlay">
+                                        <i class="fas fa-camera"></i>
+                                        <p class="small mb-0">Изменить фото</p>
+                                    </div>
+                                </div>
+                                
+                                <form method="post" action="{% url 'update_avatar' %}" enctype="multipart/form-data" class="avatar-form" id="avatar-form">
+                                    {% csrf_token %}
+                                    <input type="file" class="avatar-input" id="avatar" name="avatar" accept="image/*" required>
+                                    <button type="submit" class="btn btn-primary btn-update-avatar" id="submit-avatar" disabled>
+                                        <i class="fas fa-save me-1"></i> Сохранить фото
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        {% if profile.avatar %}
+                            <img src="{{ profile.avatar.url }}" alt="{{ profile_user.username }}" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'gameapp/images/default-avatar.png' %}" alt="{{ profile_user.username }}" class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% endif %}
+                    {% endif %}
+                    
+                    <h3 class="card-title">{{ profile_user.username }}</h3>
+                    
+                    <!-- Верификация аккаунта -->
+                    {% if profile.is_verified %}
+                        <div class="verification-badge mb-3">
+                            <span class="badge bg-success d-inline-flex align-items-center px-3 py-2">
+                                <i class="fas fa-check-circle me-2"></i> Проверенный продавец
+                            </span>
+                            <div class="verification-info mt-1 small text-muted">
+                                Верифицирован с {{ profile.verified_date|date:"d.m.Y" }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Статус онлайн -->
+                    {% if profile.online_status %}
+                        <span class="badge bg-success">Онлайн</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Не в сети</span>
+                        {% if profile.last_online %}
+                            {% now "Y-m-d H:i:s" as current_time_str %}
+                            <p class="text-muted small">
+                                {% if profile.last_online|timesince:current_time_str == "0\xa0минут" %}
+                                    Был в сети только что
+                                {% elif profile.last_online|timesince:current_time_str|slice:":6" == "0\xa0час" %}
+                                    Был в сети {{ profile.last_online|timesince:current_time_str }} назад
+                                {% else %}
+                                    Был в сети {{ profile.last_online|timesince:current_time_str }} назад
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    {% endif %}
+                    
+                    {% if profile %}
+                        {% if profile.location %}
+                            <p><i class="bi bi-geo-alt"></i> {{ profile.location }}</p>
+                        {% endif %}
+                    {% endif %}
+                    
+                    {% if not is_own_profile %}
+                        <div class="mt-3">
+                            <a href="#" class="btn btn-primary mb-2"><i class="bi bi-chat-dots"></i> Написать сообщение</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Визуализация рейтинга -->
+            <div class="card mb-4">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-star me-2 text-primary"></i>
+                    <h5 class="mb-0">Рейтинг продавца</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="rating-stars mb-3">
+                        {% with ''|center:5 as range %}
+                            {% for _ in range %}
+                                {% if forloop.counter <= stats.avg_rating|floatformat:0|add:"0" %}
+                                    <i class="fas fa-star fa-2x text-warning"></i>
+                                {% elif forloop.counter|add:"-0.5"|floatformat:0|add:"0" <= stats.avg_rating|floatformat:0|add:"0" %}
+                                    <i class="fas fa-star-half-alt fa-2x text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star fa-2x text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                    <div class="rating-value mb-3">
+                        <span class="display-4 fw-bold text-primary">{{ stats.avg_rating|floatformat:1 }}</span>
+                        <span class="text-muted">/5</span>
+                    </div>
+                    <div class="rating-info small">
+                        Основано на <strong>{{ stats.reviews_count }}</strong> отзывах
+                    </div>
+                    
+                    <!-- Шкала рейтинга -->
+                    <div class="rating-bars mt-4">
+                        <div class="rating-bar-container d-flex align-items-center mb-2">
+                            <div class="rating-label me-2">5 <i class="fas fa-star text-warning small"></i></div>
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="rating-count ms-2 small">0</div>
+                        </div>
+                        <div class="rating-bar-container d-flex align-items-center mb-2">
+                            <div class="rating-label me-2">4 <i class="fas fa-star text-warning small"></i></div>
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="rating-count ms-2 small">0</div>
+                        </div>
+                        <div class="rating-bar-container d-flex align-items-center mb-2">
+                            <div class="rating-label me-2">3 <i class="fas fa-star text-warning small"></i></div>
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="rating-count ms-2 small">0</div>
+                        </div>
+                        <div class="rating-bar-container d-flex align-items-center mb-2">
+                            <div class="rating-label me-2">2 <i class="fas fa-star text-warning small"></i></div>
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="rating-count ms-2 small">0</div>
+                        </div>
+                        <div class="rating-bar-container d-flex align-items-center">
+                            <div class="rating-label me-2">1 <i class="fas fa-star text-warning small"></i></div>
+                            <div class="progress flex-grow-1" style="height: 8px;">
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="rating-count ms-2 small">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Статистика пользователя -->
+            <div class="card mb-4">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-chart-bar me-2 text-primary"></i>
+                    <h5 class="mb-0">Статистика</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-star me-2 text-warning"></i>
+                                <span>Рейтинг</span>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">
+                                {{ stats.avg_rating|floatformat:1 }} / 5
+                                <i class="fas fa-star ms-1"></i>
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-comment me-2 text-info"></i>
+                                <span>Отзывы</span>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ stats.reviews_count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-shopping-cart me-2 text-primary"></i>
+                                <span>Покупки</span>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ stats.purchases_count|default:0 }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-cash-register me-2 text-success"></i>
+                                <span>Продажи</span>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">{{ stats.sales_count|default:0 }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            {% if profile.bio %}
+            <!-- О себе -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>О себе</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ profile.bio }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Основная панель информации -->
+        <div class="col-md-8">
+            {% if is_own_profile %}
+            <div class="card mb-4">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-id-card me-2 text-primary"></i>
+                    <h5 class="mb-0">Личная информация</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="info-row px-3 py-3">
+                        <div class="row align-items-center">
+                            <div class="col-lg-4 col-md-5 info-label">
+                                <i class="fas fa-user-circle me-2 text-primary"></i>Имя пользователя:
+                            </div>
+                            <div class="col-lg-8 col-md-7 info-value">{{ profile_user.username }}</div>
+                        </div>
+                    </div>
+                    <div class="info-row px-3 py-3">
+                        <div class="row align-items-center">
+                            <div class="col-lg-4 col-md-5 info-label">
+                                <i class="fas fa-envelope me-2 text-primary"></i>Email:
+                            </div>
+                            <div class="col-lg-8 col-md-7 info-value">{{ profile_user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="info-row px-3 py-3">
+                        <div class="row align-items-center">
+                            <div class="col-lg-4 col-md-5 info-label">
+                                <i class="fas fa-phone me-2 text-primary"></i>Номер телефона:
+                            </div>
+                            <div class="col-lg-8 col-md-7 info-value">{{ profile.phone_number|default:"Не указан" }}</div>
+                        </div>
+                    </div>
+                    <div class="info-row px-3 py-3">
+                        <div class="row align-items-center">
+                            <div class="col-lg-4 col-md-5 info-label">
+                                <i class="fas fa-calendar-alt me-2 text-primary"></i>Дата регистрации:
+                            </div>
+                            <div class="col-lg-8 col-md-7 info-value">{{ stats.member_since|date:"d.m.Y H:i" }}</div>
+                        </div>
+                    </div>
+                    <div class="info-row px-3 py-3">
+                        <div class="row align-items-center">
+                            <div class="col-lg-4 col-md-5 info-label">
+                                <i class="fas fa-shield-alt me-2 text-primary"></i>2FA:
+                            </div>
+                            <div class="col-lg-8 col-md-7 info-value">
+                                {% if profile.two_factor_enabled|default:False %}
+                                    <span class="badge bg-success"><i class="fas fa-shield-alt me-1"></i> Включена</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-unlock me-1"></i> Отключена</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Активные предложения -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-tags me-2 text-primary"></i>
+                        <h5 class="mb-0">Активные предложения</h5>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-arrow-right me-1"></i>Смотреть все
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if offers %}
+                        <div class="list-group">
+                            {% for offer in offers %}
+                            <a href="{% url 'offer_detail' offer.id %}" class="list-group-item list-group-item-action d-flex gap-3 py-3">
+                                {% if offer.game.cover_image %}
+                                    <img src="{{ offer.game.cover_image.url }}" alt="{{ offer.game.title }}" class="rounded flex-shrink-0" width="64" height="64">
+                                {% else %}
+                                    <img src="{% static 'gameapp/images/default-game.png' %}" alt="{{ offer.game.title }}" class="rounded flex-shrink-0" width="64" height="64">
+                                {% endif %}
+                                <div class="d-flex gap-2 w-100 justify-content-between">
+                                    <div>
+                                        <h6 class="mb-0">{{ offer.item_name }}</h6>
+                                        <p class="mb-0 opacity-75">{{ offer.game.title }} | {{ offer.server.name }}</p>
+                                        <p class="mb-0 small">
+                                            <span class="badge 
+                                                {% if offer.quality == 'common' %}bg-secondary{% endif %}
+                                                {% if offer.quality == 'uncommon' %}bg-success{% endif %}
+                                                {% if offer.quality == 'rare' %}bg-primary{% endif %}
+                                                {% if offer.quality == 'epic' %}bg-warning{% endif %}
+                                                {% if offer.quality == 'legendary' %}bg-danger{% endif %}
+                                            ">{{ offer.get_quality_display }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="text-nowrap text-end">
+                                        <strong class="text-primary">{{ offer.price }} ₽</strong>
+                                        <p class="text-muted small mb-0">{{ offer.created_at|date:"d.m.Y" }}</p>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">У пользователя нет активных предложений.</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Отзывы -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-comment-alt me-2 text-primary"></i>
+                        <h5 class="mb-0">Отзывы</h5>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-arrow-right me-1"></i>Смотреть все
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if reviews %}
+                        <div class="list-group">
+                            {% for review in reviews %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6 class="mb-1">{{ review.reviewer.username }}</h6>
+                                        <p class="text-muted mb-1 small">
+                                            <a href="{% url 'offer_detail' review.offer.id %}">{{ review.offer.item_name }}</a> • {{ review.created_at|date:"d.m.Y" }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-primary">
+                                            {{ review.rating }} / 5
+                                            <i class="fas fa-star ms-1"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                                {% if review.comment %}
+                                <p class="mb-0 mt-2">{{ review.comment }}</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">У пользователя пока нет отзывов.</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Календарь активности -->
+            <div class="card mt-4" style="display: none;">
+                <div class="card-header d-flex align-items-center">
+                    <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                    <h5 class="mb-0">Календарь активности</h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-calendar" id="activity-heatmap"></div>
+                    <div class="activity-legend mt-3 d-flex justify-content-center">
+                        <div class="d-flex align-items-center me-3">
+                            <div class="activity-dot activity-dot-0 me-1"></div>
+                            <small>0</small>
+                        </div>
+                        <div class="d-flex align-items-center me-3">
+                            <div class="activity-dot activity-dot-1 me-1"></div>
+                            <small>1-3</small>
+                        </div>
+                        <div class="d-flex align-items-center me-3">
+                            <div class="activity-dot activity-dot-2 me-1"></div>
+                            <small>4-6</small>
+                        </div>
+                        <div class="d-flex align-items-center me-3">
+                            <div class="activity-dot activity-dot-3 me-1"></div>
+                            <small>7-9</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="activity-dot activity-dot-4 me-1"></div>
+                            <small>10+</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if is_own_profile %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация загрузки аватарки
+        const avatarContainer = document.querySelector('.current-avatar-container');
+        const avatarInput = document.getElementById('avatar');
+        const avatarPreview = document.getElementById('avatar-preview');
+        const submitButton = document.getElementById('submit-avatar');
+        const avatarForm = document.getElementById('avatar-form');
+        
+        // Клик по контейнеру аватарки открывает диалог выбора файла
+        if (avatarContainer) {
+            avatarContainer.addEventListener('click', function() {
+                avatarInput.click();
+            });
+        }
+        
+        // Обработка выбора файла
+        if (avatarInput) {
+            avatarInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Чтение выбранного файла и отображение предпросмотра
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        avatarPreview.src = e.target.result;
+                        
+                        // Добавляем класс для анимации и стилизации
+                        avatarContainer.closest('.avatar-upload-container').classList.add('avatar-changed');
+                        
+                        // Активируем кнопку
+                        submitButton.disabled = false;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Валидация типа файла изображения
+        if (avatarInput) {
+            avatarInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const fileType = file.type;
+                    const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                    
+                    if (!validImageTypes.includes(fileType)) {
+                        alert('Пожалуйста, выберите файл изображения (JPEG, PNG, GIF)');
+                        this.value = '';
+                        submitButton.disabled = true;
+                        return false;
+                    }
+                    
+                    // Проверка размера файла (не более 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Размер файла не должен превышать 5MB');
+                        this.value = '';
+                        submitButton.disabled = true;
+                        return false;
+                    }
+                }
+            });
+        }
+        
+        // Анимация при отправке формы
+        if (avatarForm) {
+            avatarForm.addEventListener('submit', function() {
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Загрузка...';
+                submitButton.disabled = true;
+            });
+        }
+        
+        // Инициализация календаря активности
+        // initActivityCalendar();
+    });
+    
+    function initActivityCalendar() {
+        // Функция скрыта, так как раздел активности удален
+    }
+    
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    
+    function getActivityClass(count) {
+        if (count === 0) return 'activity-level-0';
+        if (count < 3) return 'activity-level-1';
+        if (count < 6) return 'activity-level-2';
+        if (count < 10) return 'activity-level-3';
+        return 'activity-level-4';
+    }
+</script>
+{% endif %}
+{% endblock %} 

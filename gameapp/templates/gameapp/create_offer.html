@@ -1,0 +1,258 @@
+{% extends 'gameapp/base.html' %}
+
+{% block title %}Создать новое предложение{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Создать новое предложение</h3>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'create_offer' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="game" class="form-label">Игра*</label>
+                            <select class="form-select" id="game" name="game" required>
+                                <option value="">Выберите игру</option>
+                                {% for game in games %}
+                                <option value="{{ game.id }}" {% if selected_game and selected_game.id == game.id %}selected{% endif %}>{{ game.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Категория</label>
+                            <select class="form-select" id="category" name="category" {% if not categories %}disabled{% endif %}>
+                                <option value="">{% if categories %}Выберите категорию{% else %}Сначала выберите игру{% endif %}</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="subcategory" class="form-label">Подкатегория</label>
+                            <select class="form-select" id="subcategory" name="subcategory" disabled>
+                                <option value="">Сначала выберите категорию</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="server" class="form-label">Сервер*</label>
+                            <select class="form-select" id="server" name="server" required>
+                                <option value="">Выберите сервер</option>
+                                {% for server in servers %}
+                                <option value="{{ server.id }}">{{ server.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="item_name" class="form-label">Название товара*</label>
+                            <input type="text" class="form-control" id="item_name" name="item_name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Описание*</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Цена (₽)*</label>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Количество*</label>
+                            <input type="number" class="form-control" id="amount" name="amount" min="1" value="1" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="quality" class="form-label">Качество*</label>
+                            <select class="form-select" id="quality" name="quality" required>
+                                {% for value, label in quality_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="images" class="form-label">Изображения товара</label>
+                            <input type="file" class="form-control" id="images" name="images" multiple accept="image/*">
+                            <div class="form-text">Вы можете загрузить до 5 изображений (JPG, PNG). Макс. размер файла 5 МБ.</div>
+                            <div id="image-preview" class="mt-2 d-flex flex-wrap gap-2"></div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="is_tradable" name="is_tradable" checked>
+                            <label class="form-check-label" for="is_tradable">Доступен для обмена</label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Создать предложение</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const gameSelect = document.getElementById('game');
+        const categorySelect = document.getElementById('category');
+        const subcategorySelect = document.getElementById('subcategory');
+        const imageInput = document.getElementById('images');
+        const imagePreview = document.getElementById('image-preview');
+        
+        // Функция для загрузки категорий
+        function loadCategories(gameId) {
+            // Очищаем предыдущие категории и подкатегории
+            categorySelect.innerHTML = '';
+            subcategorySelect.innerHTML = '';
+            
+            // Устанавливаем начальное состояние для select элементов
+            categorySelect.disabled = true;
+            subcategorySelect.disabled = true;
+            subcategorySelect.innerHTML = '<option value="">Сначала выберите категорию</option>';
+            
+            if (!gameId) {
+                categorySelect.innerHTML = '<option value="">Сначала выберите игру</option>';
+                return;
+            }
+            
+            // Делаем Ajax запрос для получения категорий игры
+            fetch(`/api/categories/?game_id=${gameId}`)
+                .then(response => response.json())
+                .then(data => {
+                    categorySelect.disabled = false;
+                    
+                    if (data.length === 0) {
+                        categorySelect.innerHTML = '<option value="">Категории не найдены</option>';
+                        return;
+                    }
+                    
+                    // Добавляем пустую опцию
+                    categorySelect.innerHTML = '<option value="">Выберите категорию</option>';
+                    
+                    // Добавляем категории
+                    data.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category.id;
+                        option.textContent = category.name;
+                        categorySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке категорий:', error);
+                    categorySelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+                });
+        }
+        
+        // Функция для загрузки подкатегорий
+        function loadSubcategories(categoryId) {
+            // Очищаем предыдущие подкатегории
+            subcategorySelect.innerHTML = '';
+            
+            if (!categoryId) {
+                subcategorySelect.disabled = true;
+                subcategorySelect.innerHTML = '<option value="">Сначала выберите категорию</option>';
+                return;
+            }
+            
+            // Делаем Ajax запрос для получения подкатегорий
+            fetch(`/api/subcategories/?category_id=${categoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    subcategorySelect.disabled = false;
+                    
+                    if (data.length === 0) {
+                        subcategorySelect.innerHTML = '<option value="">Подкатегории не найдены</option>';
+                        return;
+                    }
+                    
+                    // Добавляем пустую опцию
+                    subcategorySelect.innerHTML = '<option value="">Выберите подкатегорию</option>';
+                    
+                    // Добавляем подкатегории
+                    data.forEach(subcategory => {
+                        const option = document.createElement('option');
+                        option.value = subcategory.id;
+                        option.textContent = subcategory.name;
+                        subcategorySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка при загрузке подкатегорий:', error);
+                    subcategorySelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+                });
+        }
+        
+        // Предварительный просмотр изображений
+        if (imageInput) {
+            imageInput.addEventListener('change', function() {
+                imagePreview.innerHTML = '';
+                
+                if (this.files.length > 5) {
+                    alert('Можно загрузить максимум 5 изображений.');
+                    this.value = '';
+                    return;
+                }
+                
+                for (let i = 0; i < this.files.length; i++) {
+                    const file = this.files[i];
+                    
+                    // Проверка на тип файла и размер
+                    if (!file.type.match('image.*')) {
+                        alert('Пожалуйста, загружайте только изображения.');
+                        continue;
+                    }
+                    
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Размер файла превышает 5 МБ.');
+                        continue;
+                    }
+                    
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'position-relative';
+                        
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'img-thumbnail';
+                        img.style.width = '100px';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+                        
+                        div.appendChild(img);
+                        imagePreview.appendChild(div);
+                    }
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Слушаем изменения в выборе игры
+        gameSelect.addEventListener('change', function() {
+            loadCategories(this.value);
+        });
+        
+        // Слушаем изменения в выборе категории
+        categorySelect.addEventListener('change', function() {
+            loadSubcategories(this.value);
+        });
+    });
+</script>
+{% endblock %} 

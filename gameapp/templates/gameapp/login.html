@@ -1,0 +1,731 @@
+{% extends "gameapp/base.html" %}
+
+{% block title %}Вход - InexShop{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Основные стили и переменные */
+    :root {
+        --auth-primary: #4361ee;
+        --auth-secondary: #3a0ca3;
+        --auth-accent: #4cc9f0;
+        --auth-gradient: linear-gradient(135deg, var(--auth-primary), var(--auth-secondary));
+        --auth-shadow: 0 10px 30px rgba(67, 97, 238, 0.15);
+        --auth-text: #2d3748;
+        --auth-text-light: #718096;
+        --auth-success: #48bb78;
+        --auth-error: #f56565;
+        --auth-bg: #f8fafc;
+        --auth-card-bg: #ffffff;
+        --auth-input-bg: #f8fafc;
+        --auth-input-border: #e2e8f0;
+        --auth-input-focus: #4361ee;
+    }
+
+    body {
+        background-color: var(--auth-bg);
+    }
+
+    /* Контейнер авторизации */
+    .auth-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Фоновые элементы */
+    .auth-bg-shape {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(45deg, var(--auth-primary), var(--auth-secondary));
+        opacity: 0.05;
+        z-index: -1;
+    }
+
+    .auth-bg-shape:nth-child(1) {
+        width: 500px;
+        height: 500px;
+        top: -250px;
+        left: -100px;
+        animation: float 15s ease-in-out infinite;
+    }
+
+    .auth-bg-shape:nth-child(2) {
+        width: 400px;
+        height: 400px;
+        bottom: -200px;
+        right: -100px;
+        animation: float 18s ease-in-out infinite 1s;
+    }
+
+    .auth-bg-shape:nth-child(3) {
+        width: 200px;
+        height: 200px;
+        bottom: 10%;
+        left: 10%;
+        animation: float 12s ease-in-out infinite 2s;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translate(0px, 0px);
+        }
+        50% {
+            transform: translate(20px, 20px);
+        }
+        100% {
+            transform: translate(0px, 0px);
+        }
+    }
+
+    /* Карточка авторизации */
+    .auth-card {
+        width: 100%;
+        max-width: 450px;
+        background: var(--auth-card-bg);
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transform: translateY(0);
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation: cardAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .auth-card:hover {
+        box-shadow: 0 15px 50px rgba(67, 97, 238, 0.2);
+    }
+
+    @keyframes cardAppear {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Шапка */
+    .auth-header {
+        background: var(--auth-gradient);
+        color: white;
+        padding: 25px 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-header h2 {
+        margin-bottom: 5px;
+        font-weight: 700;
+        font-size: 1.8rem;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .auth-header p {
+        opacity: 0.9;
+        margin-bottom: 0;
+        font-size: 0.95rem;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .auth-header-decoration {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 10%, transparent 10.5%);
+        background-size: 20px 20px;
+        opacity: 0.5;
+        animation: moveBg 30s linear infinite;
+    }
+
+    @keyframes moveBg {
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 400px 400px;
+        }
+    }
+
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Форма */
+    .auth-form {
+        padding: 30px;
+        animation: fadeIn 1s ease-out 0.6s both;
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: var(--auth-text);
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+
+    .input-group {
+        position: relative;
+        display: flex;
+    }
+
+    .input-group-text {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 1rem;
+        background-color: var(--auth-input-bg);
+        border: 1px solid var(--auth-input-border);
+        border-right: none;
+        border-radius: 8px 0 0 8px;
+        color: var(--auth-text-light);
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        flex: 1;
+        height: 48px;
+        border-radius: 0;
+        border: 1px solid var(--auth-input-border);
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+        color: var(--auth-text);
+        background-color: var(--auth-input-bg);
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--auth-input-focus);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        outline: none;
+    }
+
+    .input-icon {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        transform: translateY(-50%);
+        color: var(--auth-text-light);
+        transition: all 0.3s;
+    }
+
+    .password-toggle {
+        background-color: var(--auth-input-bg);
+        border: 1px solid var(--auth-input-border);
+        border-left: none;
+        cursor: pointer;
+        color: var(--auth-text-light);
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 15px;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .password-toggle:hover {
+        color: var(--auth-primary);
+    }
+
+    /* Чекбокс */
+    .form-check {
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .form-check-input {
+        width: 0;
+        height: 0;
+        opacity: 0;
+        position: absolute;
+    }
+
+    .form-check-label {
+        font-size: 0.9rem;
+        color: var(--auth-text-light);
+        cursor: pointer;
+        padding-left: 30px;
+        position: relative;
+        transition: color 0.2s;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+
+    .form-check-label:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--auth-input-border);
+        border-radius: 5px;
+        background-color: var(--auth-input-bg);
+        transition: all 0.3s ease;
+    }
+
+    .form-check-label:after {
+        content: '\f00c';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 4px;
+        top: 1px;
+        font-size: 12px;
+        color: white;
+        opacity: 0;
+        transition: all 0.2s ease;
+    }
+
+    .form-check-input:checked ~ .form-check-label:before {
+        background-color: var(--auth-primary);
+        border-color: var(--auth-primary);
+    }
+
+    .form-check-input:checked ~ .form-check-label:after {
+        opacity: 1;
+    }
+
+    .form-check-input:focus ~ .form-check-label:before {
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+
+    .form-check-label:hover:before {
+        border-color: var(--auth-primary);
+    }
+
+    /* Ссылки */
+    .auth-link {
+        color: var(--auth-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+        position: relative;
+    }
+
+    .auth-link:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: -1px;
+        left: 0;
+        background-color: var(--auth-primary);
+        transition: width 0.3s ease;
+    }
+
+    .auth-link:hover {
+        color: var(--auth-secondary);
+    }
+
+    .auth-link:hover:after {
+        width: 100%;
+    }
+
+    /* Кнопка */
+    .auth-btn {
+        display: block;
+        width: 100%;
+        height: 48px;
+        border-radius: 8px;
+        background: var(--auth-gradient);
+        border: none;
+        color: white;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+    }
+
+    .auth-btn:active {
+        transform: translateY(0);
+    }
+
+    .auth-btn:after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+        top: -50%;
+        left: -50%;
+        transform: scale(0);
+        transition: transform 0.5s, opacity 0.3s;
+        opacity: 0;
+    }
+
+    .auth-btn:active:after {
+        transform: scale(3);
+        opacity: 0;
+        transition: 0s;
+    }
+
+    /* Добавляем эффект пульсации для кнопки */
+    @keyframes buttonPulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(67, 97, 238, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+        }
+    }
+
+    .auth-btn-pulse {
+        animation: buttonPulse 1.5s infinite;
+    }
+
+    /* Советы */
+    .login-tips {
+        background-color: rgba(67, 97, 238, 0.05);
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 25px;
+        border-left: 3px solid var(--auth-primary);
+        animation: fadeIn 1s ease-out 0.8s both;
+    }
+
+    .login-tips h5 {
+        color: var(--auth-primary);
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .login-tips h5 i {
+        margin-right: 8px;
+    }
+
+    .login-tips ul {
+        padding-left: 25px;
+        margin-bottom: 0;
+    }
+
+    .login-tips li {
+        margin-bottom: 5px;
+        font-size: 0.85rem;
+        color: var(--auth-text-light);
+    }
+
+    /* Футер */
+    .auth-footer {
+        text-align: center;
+        padding: 10px 30px 30px;
+        color: var(--auth-text-light);
+        animation: fadeIn 1s ease-out 1s both;
+    }
+
+    /* Всплывающие подсказки */
+    .field-tooltip {
+        position: relative;
+        display: inline-block;
+        margin-left: 5px;
+        color: var(--auth-text-light);
+    }
+
+    .field-tooltip .tooltip-text {
+        visibility: hidden;
+        width: 250px;
+        background-color: #1a202c;
+        color: #fff;
+        text-align: left;
+        border-radius: 8px;
+        padding: 10px;
+        position: absolute;
+        z-index: 10;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+        transform-origin: bottom center;
+        transform: translateX(-50%) scale(0.8);
+        font-size: 0.8rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .field-tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -6px;
+        border-width: 6px;
+        border-style: solid;
+        border-color: #1a202c transparent transparent transparent;
+    }
+
+    .field-tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    /* Уведомления об ошибках */
+    .alert-danger {
+        background-color: rgba(245, 101, 101, 0.1);
+        color: var(--auth-error);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        animation: shakeError 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    .alert-danger i {
+        margin-right: 10px;
+        font-size: 1rem;
+    }
+
+    @keyframes shakeError {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-5px);
+        }
+        20%, 40%, 60%, 80% {
+            transform: translateX(5px);
+        }
+    }
+
+    /* Медиа-запросы */
+    @media (max-width: 576px) {
+        .auth-card {
+            border-radius: 0;
+            box-shadow: none;
+        }
+        
+        .auth-wrapper {
+            padding: 0;
+        }
+        
+        .auth-form,
+        .auth-header,
+        .auth-footer {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+    }
+
+    .form-control-right-rounded {
+        border-radius: 0 8px 8px 0 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <!-- Фоновые элементы -->
+    <div class="auth-bg-shape"></div>
+    <div class="auth-bg-shape"></div>
+    <div class="auth-bg-shape"></div>
+    
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-header-decoration"></div>
+            <h2>Вход в аккаунт</h2>
+            <p>Войдите, чтобы продолжить работу с InexShop</p>
+        </div>
+        
+        <div class="auth-form">
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                
+                {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle"></i>{{ error_message }}
+                </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label for="username" class="form-label">
+                        Имя пользователя
+                        <span class="field-tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltip-text">Введите имя пользователя, указанное при регистрации. Например, "user123"</span>
+                        </span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" class="form-control form-control-right-rounded" id="username" name="username" required autocomplete="username">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        Пароль
+                        <span class="field-tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltip-text">Введите пароль от вашего аккаунта. Если вы забыли пароль, воспользуйтесь функцией восстановления пароля.</span>
+                        </span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+                        <span class="input-group-text password-toggle" onclick="togglePassword('password')">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">
+                            Запомнить меня
+                        </label>
+                    </div>
+                    <a href="{% url 'password_reset' %}" class="auth-link">
+                        Забыли пароль?
+                    </a>
+                </div>
+                
+                <button type="submit" class="auth-btn" id="login-button">
+                    <i class="fas fa-sign-in-alt me-2"></i>Войти
+                </button>
+                
+                <div class="login-tips">
+                    <h5><i class="fas fa-lightbulb"></i>Советы по входу:</h5>
+                    <ul>
+                        <li>Имя пользователя чувствительно к регистру. Убедитесь, что Caps Lock выключен.</li>
+                        <li>Если вы недавно регистрировались, проверьте электронную почту для подтверждения аккаунта.</li>
+                        <li>В случае проблем с входом, воспользуйтесь функцией восстановления пароля.</li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        
+        <div class="auth-footer">
+            <p>Нет аккаунта? <a href="{% url 'register' %}" class="auth-link">Зарегистрироваться</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- Добавляем скрипт для переключения видимости пароля и анимации кнопки -->
+<script>
+    function togglePassword(id) {
+        const input = document.getElementById(id);
+        const icon = input.parentNode.querySelector('.password-toggle i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Добавление анимации для кнопки входа
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginButton = document.getElementById('login-button');
+        
+        // Добавляем анимацию при нажатии
+        loginButton.addEventListener('mousedown', function() {
+            this.style.transform = 'scale(0.98)';
+            
+            // Добавляем эффект волны при клике
+            const wave = document.createElement('span');
+            wave.style.position = 'absolute';
+            wave.style.top = '50%';
+            wave.style.left = '50%';
+            wave.style.transform = 'translate(-50%, -50%)';
+            wave.style.width = '5px';
+            wave.style.height = '5px';
+            wave.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+            wave.style.borderRadius = '50%';
+            wave.style.animation = 'ripple 0.7s linear';
+            wave.style.zIndex = '1';
+            
+            this.appendChild(wave);
+            
+            setTimeout(() => {
+                wave.remove();
+            }, 700);
+        });
+        
+        loginButton.addEventListener('mouseup', function() {
+            this.style.transform = '';
+        });
+        
+        loginButton.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+        
+        // Добавляем стиль для анимации волны
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    width: 300px;
+                    height: 300px;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Периодически добавляем импульсную анимацию
+        setTimeout(() => {
+            loginButton.classList.add('auth-btn-pulse');
+            setTimeout(() => {
+                loginButton.classList.remove('auth-btn-pulse');
+            }, 3000);
+        }, 1500);
+    });
+</script>
+{% endblock %} 

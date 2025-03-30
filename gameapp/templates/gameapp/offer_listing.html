@@ -1,0 +1,1043 @@
+{% extends "gameapp/base.html" %}
+{% load static %}
+
+{% block title %}
+{% if game %}{{ game.title }} - предложения{% else %}Все предложения{% endif %} - InexShop
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-card {
+        background-color: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        border-left: 4px solid var(--primary-color);
+        height: 100%;
+    }
+    
+    .filter-card:hover {
+        box-shadow: 0 8px 25px rgba(67, 97, 238, 0.1);
+    }
+    
+    .filter-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--dark-color);
+        display: flex;
+        align-items: center;
+    }
+    
+    .filter-title i {
+        margin-right: 8px;
+        background: var(--primary-color);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-card:hover .filter-title i {
+        transform: rotate(10deg);
+        background: var(--secondary-color);
+    }
+    
+    .filter-price {
+        padding: 10px 0;
+    }
+    
+    .price-range {
+        width: 100%;
+        margin: 10px 0;
+    }
+    
+    .offer-item {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.25s ease;
+        margin-bottom: 15px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        position: relative;
+    }
+    
+    .offer-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(67, 97, 238, 0.1);
+    }
+    
+    .offer-img {
+        height: 150px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .offer-item:hover .offer-img {
+        transform: scale(1.03);
+    }
+    
+    .offer-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 2;
+    }
+    
+    .badge-game {
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        font-weight: 500;
+        backdrop-filter: blur(3px);
+        padding: 0.3rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+    
+    .seller-badge {
+        border-radius: 30px;
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+    
+    .sort-btn {
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .sort-btn.active {
+        background-color: var(--primary-color);
+        color: white;
+        box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+    }
+    
+    .price-tag {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--accent-color);
+    }
+    
+    .social-action-btn {
+        border: none;
+        background: #f8f9fa;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 8px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    
+    .social-action-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .offer-item .btn-primary {
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 600;
+        transition: all 0.25s ease;
+        font-size: 0.9rem;
+    }
+    
+    .offer-item .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(67, 97, 238, 0.2);
+    }
+    
+    .stats-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        background-color: #f8f9fa;
+    }
+    
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+    }
+    
+    .seller-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .seller-avatar:hover {
+        transform: scale(1.1);
+    }
+    
+    /* Анимация для слайдера цены */
+    .price-slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: #e0e0e0;
+        outline: none;
+        margin: 15px 0;
+    }
+    
+    .price-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+    }
+    
+    .price-slider::-webkit-slider-thumb:hover {
+        background: var(--secondary-color);
+        transform: scale(1.2);
+    }
+    
+    .price-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        cursor: pointer;
+        box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        transition: all 0.2s ease;
+        border: none;
+    }
+    
+    .price-slider::-moz-range-thumb:hover {
+        background: var(--secondary-color);
+        transform: scale(1.2);
+    }
+    
+    .seller-info {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        transition: all 0.25s ease;
+        border-left: 2px solid var(--primary-color);
+        padding: 6px 10px;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .seller-info:hover {
+        background-color: #eef2ff;
+        transform: translateX(3px);
+    }
+    
+    .seller-name {
+        transition: all 0.3s ease;
+    }
+    
+    .seller-info:hover .seller-name {
+        color: var(--primary-color);
+    }
+    
+    .seller-badge-verified {
+        font-size: 0.9rem;
+        color: var(--primary-color);
+    }
+    
+    .rating-value {
+        font-weight: 600;
+    }
+    
+    /* Стили для статистики */
+    .stats-update-badge {
+        font-size: 0.6rem;
+        padding: 0.25rem 0.4rem;
+        opacity: 0.8;
+        transition: all 0.3s ease;
+    }
+    
+    .stats-update-badge:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    
+    #stats-container {
+        animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    /* Эффекты для чекбоксов и радиокнопок */
+    .form-check-input {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .form-check-label {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding-left: 5px;
+    }
+    
+    .form-check-input:checked + .form-check-label {
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+    
+    /* Компактные фильтры */
+    .filter-card .form-check {
+        margin-bottom: 0;
+    }
+    
+    .filter-card .form-check-label {
+        font-size: 0.85rem;
+    }
+    
+    .form-select {
+        font-size: 0.9rem;
+        padding: 0.375rem 0.5rem;
+    }
+    
+    @media (max-width: 991px) {
+        .filter-card {
+            padding: 12px;
+        }
+    }
+    
+    /* Кнопки действия фильтров */
+    #reset-filters, #refresh-results {
+        transition: all 0.3s ease;
+    }
+    
+    #reset-filters:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    #refresh-results:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+    }
+    
+    /* Стили для кнопок фильтров */
+    .filter-form .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    /* Улучшенные стили для радиокнопок */
+    .sort-radio:checked + .form-check-label {
+        font-weight: 500;
+    }
+    
+    /* Цветная точка для активной радиокнопки */
+    .sort-radio:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    /* Стили для кнопок сортировки */
+    .sort-options .form-check-inline {
+        margin-right: 6px;
+    }
+    
+    .sort-options .form-check-input,
+    .sort-options .form-check-label {
+        cursor: pointer;
+    }
+    
+    /* Новый дизайн фильтров */
+    .filter-container {
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,0.08);
+        background-color: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-item {
+        padding: 8px 0;
+        position: relative;
+    }
+    
+    .filter-label {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+        color: #555;
+    }
+    
+    .filter-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        color: white;
+        margin-right: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+    }
+    
+    .price-value {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-left: 5px;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+    }
+    
+    .form-check-inline {
+        margin-right: 8px;
+        margin-bottom: 4px;
+    }
+    
+    .form-check-label.small {
+        font-size: 0.75rem;
+    }
+    
+    .form-range {
+        height: 5px;
+    }
+    
+    .form-range::-webkit-slider-thumb {
+        background-color: var(--primary-color);
+        width: 15px;
+        height: 15px;
+    }
+    
+    .form-range::-moz-range-thumb {
+        background-color: var(--primary-color);
+        width: 15px;
+        height: 15px;
+    }
+    
+    .form-check-input {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .form-check-input:checked + .form-check-label {
+        color: var(--primary-color);
+    }
+    
+    .form-select-sm {
+        font-size: 0.8rem;
+        padding-top: 0.2rem;
+        padding-bottom: 0.2rem;
+    }
+    
+    /* Мобильная адаптация */
+    @media (max-width: 768px) {
+        .filter-container {
+            padding: 10px;
+        }
+        
+        .filter-item {
+            padding: 5px 0;
+        }
+        
+        .offer-item {
+            margin-bottom: 10px;
+        }
+        
+        .offer-img {
+            height: 120px;
+        }
+        
+        .card-body {
+            padding: 10px !important;
+        }
+        
+        .seller-info {
+            padding: 4px 8px;
+            margin-bottom: 8px;
+        }
+        
+        .social-action-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+        }
+        
+        .price-tag {
+            font-size: 1rem;
+        }
+        
+        .offer-item .btn-primary {
+            padding: 5px 12px;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb" class="mb-4" data-aos="fade-down">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'game_catalog' %}">Игры</a></li>
+            {% if game %}
+            <li class="breadcrumb-item active" aria-current="page">{{ game.title }}</li>
+            {% else %}
+            <li class="breadcrumb-item active" aria-current="page">Все предложения</li>
+            {% endif %}
+        </ol>
+    </nav>
+
+    <div class="row mb-5">
+        <div class="col-lg-8" data-aos="fade-right">
+            <h1 class="display-5 mb-3">{% if game %}{{ game.title }}{% else %}Все предложения{% endif %}</h1>
+            <p class="text-muted lead">Найдено <span class="fw-bold text-primary">{{ offers|length }}</span> предложений на площадке</p>
+        </div>
+        <div class="col-lg-4 text-end d-flex align-items-center justify-content-end" data-aos="fade-left">
+            {% if user.is_authenticated %}
+            <a href="{% url 'create_offer' %}{% if game %}?game={{ game.id }}{% endif %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Создать объявление
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Фильтры -->
+        <div class="col-12 mb-4">
+            <div class="filter-container bg-white p-3">
+                <form action="{% url 'offer_listing' %}" method="get" id="filter-form" class="filter-form">
+                    {% if request.GET.game %}
+                    <input type="hidden" name="game" value="{{ request.GET.game }}">
+                    {% endif %}
+                    
+                    <div class="row g-2">
+                        <!-- Фильтр по играм - УДАЛЕН -->
+                        
+                        <!-- Фильтр по категории товаров -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="filter-item">
+                                <label class="filter-label">
+                                    <i class="fas fa-th-large filter-icon"></i>Категории
+                                </label>
+                                <div class="d-flex flex-wrap">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="category" value="account" id="cat-account" {% if 'account' in request.GET.category %}checked{% endif %}>
+                                        <label class="form-check-label small" for="cat-account">Аккаунты</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="category" value="items" id="cat-items" {% if 'items' in request.GET.category %}checked{% endif %}>
+                                        <label class="form-check-label small" for="cat-items">Предметы</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="category" value="currency" id="cat-currency" {% if 'currency' in request.GET.category %}checked{% endif %}>
+                                        <label class="form-check-label small" for="cat-currency">Валюта</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="category" value="service" id="cat-service" {% if 'service' in request.GET.category %}checked{% endif %}>
+                                        <label class="form-check-label small" for="cat-service">Услуги</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="category" value="other" id="cat-other" {% if 'other' in request.GET.category %}checked{% endif %}>
+                                        <label class="form-check-label small" for="cat-other">Прочее</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Фильтр по статусу продавца -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="filter-item">
+                                <label class="filter-label">
+                                    <i class="fas fa-user-shield filter-icon"></i>Продавец
+                                </label>
+                                <div class="d-flex flex-wrap">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="seller_status" value="verified" id="seller-verified" {% if 'verified' in request.GET.seller_status %}checked{% endif %}>
+                                        <label class="form-check-label small" for="seller-verified">Проверенные</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="seller_status" value="online" id="seller-online" {% if 'online' in request.GET.seller_status %}checked{% endif %}>
+                                        <label class="form-check-label small" for="seller-online">Онлайн</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="min_rating" value="4" id="seller-rating" {% if request.GET.min_rating == '4' %}checked{% endif %}>
+                                        <label class="form-check-label small" for="seller-rating">Рейтинг 4+</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Фильтр сортировки -->
+                        <div class="col-md-6 col-lg-4">
+                            <div class="filter-item">
+                                <label class="filter-label">
+                                    <i class="fas fa-sort filter-icon"></i>Сортировка
+                                </label>
+                                <div class="d-flex flex-wrap sort-options">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input sort-radio" type="radio" name="sort" value="new" id="sort-new" {% if sort == 'new' or not sort %}checked{% endif %}>
+                                        <label class="form-check-label small" for="sort-new">Новые</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input sort-radio" type="radio" name="sort" value="cheap" id="sort-cheap" {% if sort == 'cheap' %}checked{% endif %}>
+                                        <label class="form-check-label small" for="sort-cheap">Дешевые</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input sort-radio" type="radio" name="sort" value="expensive" id="sort-expensive" {% if sort == 'expensive' %}checked{% endif %}>
+                                        <label class="form-check-label small" for="sort-expensive">Дорогие</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input sort-radio" type="radio" name="sort" value="popular" id="sort-popular" {% if sort == 'popular' %}checked{% endif %}>
+                                        <label class="form-check-label small" for="sort-popular">Популярные</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-2 mt-1">
+                        <!-- Фильтр по статусу - УДАЛЕН -->
+                        
+                        <!-- Фильтр по цене - заменен на от и до -->
+                        <div class="col-md-6 col-lg-6">
+                            <div class="filter-item">
+                                <label class="filter-label">
+                                    <i class="fas fa-ruble-sign filter-icon"></i>Цена
+                                </label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="input-group">
+                                        <span class="input-group-text">от</span>
+                                        <input type="number" class="form-control" id="min-price" name="min_price" min="0" value="{{ request.GET.min_price|default:'0' }}">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-group-text">до</span>
+                                        <input type="number" class="form-control" id="max-price" name="max_price" min="0" value="{{ request.GET.max_price|default:'10000' }}">
+                                    </div>
+                                    <span class="ms-1">₽</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Кнопки действий -->
+                        <div class="col-md-12 col-lg-6 d-flex align-items-center">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-sm px-3">
+                                    <i class="fas fa-filter me-1"></i>Применить
+                                </button>
+                                <button type="button" id="reset-filters" class="btn btn-outline-secondary btn-sm px-3">
+                                    <i class="fas fa-times"></i> Сбросить
+                                </button>
+                                <button type="button" id="refresh-results" class="btn btn-light btn-sm px-3">
+                                    <i class="fas fa-sync-alt me-1"></i>Обновить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Список предложений -->
+        <div class="col-12">
+            <!-- Сортировка для мобильных устройств -->
+            <div class="d-block d-lg-none mb-4">
+                <button class="btn btn-sm btn-primary w-100 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#mobile-filters">
+                    <i class="fas fa-filter me-2"></i>Управление фильтрами
+                </button>
+                <div class="collapse mt-3" id="mobile-filters">
+                    <div class="card card-body p-2 rounded-3 shadow-sm">
+                        <div class="row g-2">
+                            <!-- Мобильные фильтры будут подключены через JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if offers %}
+            <div class="row" id="offers-container">
+                {% for offer in offers %}
+                <div class="col-md-6 col-lg-4 mb-3 offer-item-container" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:50 }}0">
+                    <div class="card h-100 offer-item">
+                        <div class="position-relative overflow-hidden">
+                            <!-- Изображение предложения -->
+                            {% if offer.image %}
+                            <img src="{{ offer.image.url }}" alt="{{ offer.title }}" class="card-img-top offer-img">
+                            {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <i class="fas fa-image fa-2x text-secondary"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Бейдж игры -->
+                            <div class="offer-badge">
+                                <span class="badge badge-game">{{ offer.game.title }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body p-3">
+                            <!-- Заголовок и цена -->
+                            <h6 class="card-title mb-2">{{ offer.title }}</h6>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="price-tag">{{ offer.price }} ₽</span>
+                                <span class="text-muted small">
+                                    <i class="far fa-clock me-1"></i>
+                                    {{ offer.created_at|date:"d.m.Y" }}
+                                </span>
+                            </div>
+                            
+                            <!-- Информация о продавце -->
+                            <div class="d-flex align-items-center seller-info">
+                                {% if offer.seller.userprofile.avatar %}
+                                <a href="{% url 'user_profile' offer.seller.username %}">
+                                    <img src="{{ offer.seller.userprofile.avatar.url }}" alt="{{ offer.seller.username }}" class="seller-avatar me-2">
+                                </a>
+                                {% else %}
+                                <a href="{% url 'user_profile' offer.seller.username %}">
+                                    <div class="seller-avatar me-2 bg-secondary d-flex align-items-center justify-content-center text-white">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                </a>
+                                {% endif %}
+                                <div>
+                                    <div class="seller-name small fw-medium">
+                                        <a href="{% url 'user_profile' offer.seller.username %}" class="text-decoration-none text-body">
+                                            {{ offer.seller.username }}
+                                        </a>
+                                        {% if offer.seller.userprofile.is_verified %}
+                                        <i class="fas fa-check-circle text-primary" title="Проверенный продавец"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge {% if offer.seller.userprofile.online_status %}bg-success{% else %}bg-secondary{% endif %} seller-badge me-1">
+                                            {% if offer.seller.userprofile.online_status %}Онлайн{% else %}Офлайн{% endif %}
+                                        </span>
+                                        <span class="text-muted small d-flex align-items-center">
+                                            <i class="fas fa-star text-warning me-1"></i>
+                                            {{ offer.seller.userprofile.rating|default:"0" }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Действия -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <!-- Социальные кнопки -->
+                                <div class="d-flex">
+                                    <button class="social-action-btn favorite-btn" title="Добавить в избранное">
+                                        <i class="far fa-heart"></i>
+                                    </button>
+                                    <button class="social-action-btn share-btn" title="Поделиться">
+                                        <i class="fas fa-share-alt"></i>
+                                    </button>
+                                </div>
+                                <a href="{% url 'offer_detail' offer.id %}" class="btn btn-primary">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Пагинация -->
+            {% if is_paginated %}
+            <div class="mt-5" data-aos="fade-up">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if request.GET.game %}game={{ request.GET.game }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1"><i class="fas fa-angle-left"></i></a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for i in paginator.page_range %}
+                            {% if i == page_obj.number %}
+                            <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                            {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if request.GET.game %}game={{ request.GET.game }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}page={{ i }}">{{ i }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if request.GET.game %}game={{ request.GET.game }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}{% if request.GET.max_price %}max_price={{ request.GET.max_price }}&{% endif %}page={{ page_obj.next_page_number }}">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1"><i class="fas fa-angle-right"></i></a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="alert alert-info p-4" data-aos="fade-up">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle fa-2x me-3"></i>
+                    <div>
+                        <h5 class="mb-1">Предложения не найдены</h5>
+                        <p class="mb-0">Попробуйте изменить параметры фильтрации или добавьте свое предложение.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Упрощенная анимация предложений
+        const offerItems = document.querySelectorAll('.offer-item');
+        offerItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 8px 15px rgba(67, 97, 238, 0.1)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.boxShadow = '';
+            });
+        });
+        
+        // Клонирование фильтров для мобильной версии
+        function cloneMobileFilters() {
+            // Создаем мобильную версию фильтров
+            const mobileFiltersContainer = document.querySelector('#mobile-filters .row');
+            if (!mobileFiltersContainer) return;
+            
+            // Создаем колонку для каждого фильтра
+            const filterItems = document.querySelectorAll('.filter-item');
+            filterItems.forEach(item => {
+                // Клонируем карточку фильтра
+                const mobileItem = document.createElement('div');
+                mobileItem.className = 'col-12 mb-2';
+                mobileItem.appendChild(item.cloneNode(true));
+                mobileFiltersContainer.appendChild(mobileItem);
+            });
+            
+            // Синхронизируем фильтры
+            syncFormElements();
+        }
+        
+        // Запускаем синхронизацию
+        syncFormElements();
+        
+        // Обработка полей цены
+        const minPriceInput = document.querySelector('#min-price');
+        const maxPriceInput = document.querySelector('#max-price');
+        
+        if (minPriceInput && maxPriceInput) {
+            // Валидация при вводе минимальной цены
+            minPriceInput.addEventListener('input', function() {
+                // Убеждаемся, что значение не меньше 0
+                if (parseInt(this.value) < 0) {
+                    this.value = 0;
+                }
+                
+                // Убеждаемся, что минимальная цена не больше максимальной
+                if (parseInt(this.value) > parseInt(maxPriceInput.value)) {
+                    this.value = maxPriceInput.value;
+                }
+            });
+            
+            // Валидация при вводе максимальной цены
+            maxPriceInput.addEventListener('input', function() {
+                // Убеждаемся, что значение не меньше минимальной цены
+                if (parseInt(this.value) < parseInt(minPriceInput.value)) {
+                    this.value = minPriceInput.value;
+                }
+            });
+        }
+        
+        // Сброс фильтров
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', function() {
+                // Сбрасываем все поля формы
+                const form = document.getElementById('filter-form');
+                
+                // Сохраняем значение game, если оно есть в URL
+                const gameParam = new URLSearchParams(window.location.search).get('game');
+                
+                // Сбрасываем форму
+                form.reset();
+                
+                // Восстанавливаем значение game, если оно было
+                if (gameParam) {
+                    document.querySelectorAll('[name="game"]').forEach(select => {
+                        select.value = gameParam;
+                    });
+                }
+                
+                // Сбрасываем поля цены
+                if (minPriceInput) minPriceInput.value = 0;
+                if (maxPriceInput) maxPriceInput.value = 10000;
+                
+                // Анимация кнопки сброса
+                this.classList.add('btn-success');
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> Сброшено';
+                
+                setTimeout(() => {
+                    this.classList.remove('btn-success');
+                    this.innerHTML = originalText;
+                }, 1000);
+                
+                // Закрываем мобильное меню фильтров после сброса
+                if (window.innerWidth < 992) {
+                    const mobileFilters = document.getElementById('mobile-filters');
+                    const mobileFiltersCollapse = bootstrap.Collapse.getInstance(mobileFilters);
+                    if (mobileFiltersCollapse) {
+                        setTimeout(() => {
+                            mobileFiltersCollapse.hide();
+                        }, 500);
+                    }
+                }
+            });
+        }
+        
+        // Обновление результатов без перезагрузки страницы
+        const refreshResultsBtn = document.getElementById('refresh-results');
+        if (refreshResultsBtn) {
+            refreshResultsBtn.addEventListener('click', function() {
+                // Анимация кнопки
+                this.disabled = true;
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Обновление...';
+                
+                // Закрываем мобильное меню фильтров при обновлении на мобильных устройствах
+                if (window.innerWidth < 992) {
+                    const mobileFilters = document.getElementById('mobile-filters');
+                    const mobileFiltersCollapse = bootstrap.Collapse.getInstance(mobileFilters);
+                    if (mobileFiltersCollapse) {
+                        mobileFiltersCollapse.hide();
+                    }
+                }
+                
+                // Получаем текущие параметры фильтрации
+                const form = document.getElementById('filter-form');
+                const formData = new FormData(form);
+                const queryParams = new URLSearchParams(formData).toString();
+                
+                // Запрашиваем обновленные результаты с сервера
+                fetch(`/api/offers/?${queryParams}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Ошибка получения предложений');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Обновляем контейнер с предложениями
+                        const offersContainer = document.getElementById('offers-container');
+                        if (offersContainer && data.offers) {
+                            // Добавляем анимацию перед обновлением
+                            offersContainer.style.opacity = '0.5';
+                            
+                            // Задержка для визуального эффекта
+                            setTimeout(() => {
+                                // Восстанавливаем видимость
+                                offersContainer.style.opacity = '1';
+                                
+                                // Обновляем счетчик найденных предложений
+                                const foundCountElement = document.querySelector('.lead .fw-bold');
+                                if (foundCountElement && data.count !== undefined) {
+                                    foundCountElement.textContent = data.count;
+                                }
+                                
+                                // Показываем сообщение об успешном обновлении
+                                showAlert('success', 'Результаты успешно обновлены!');
+                            }, 500);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при обновлении результатов:', error);
+                        showAlert('danger', 'Ошибка при обновлении результатов');
+                    })
+                    .finally(() => {
+                        // Восстанавливаем кнопку
+                        this.disabled = false;
+                        this.innerHTML = originalText;
+                    });
+            });
+        }
+        
+        // Функция для показа уведомлений
+        function showAlert(type, message) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            
+            const offersContainer = document.getElementById('offers-container');
+            if (offersContainer) {
+                const alertContainer = document.createElement('div');
+                alertContainer.innerHTML = alertHtml;
+                offersContainer.parentNode.insertBefore(alertContainer, offersContainer);
+                
+                // Автоматически скрываем уведомление через 3 секунды
+                setTimeout(() => {
+                    const alert = alertContainer.querySelector('.alert');
+                    if (alert) {
+                        alert.classList.remove('show');
+                        setTimeout(() => alertContainer.remove(), 300);
+                    }
+                }, 3000);
+            }
+        }
+    });
+</script>
+{% endblock %} 

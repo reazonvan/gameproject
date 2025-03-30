@@ -1,0 +1,490 @@
+{% extends 'gameapp/base.html' %}
+{% load static %}
+
+{% block title %}{{ offer.item_name }} | {{ offer.game.title }} | InexShop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb" class="mb-4" data-aos="fade-right">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'game_catalog' %}">Игры</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'offer_listing' %}?game={{ offer.game.id }}">{{ offer.game.title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ offer.item_name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row g-4">
+        <!-- Основная информация о товаре -->
+        <div class="col-lg-8" data-aos="fade-up">
+            <div class="card border-0 shadow-sm overflow-hidden mb-4">
+                <!-- Галерея товара или изображение заглушка -->
+                <div class="position-relative">
+                    <div class="offer-image-wrapper bg-light">
+                        {% if offer.image %}
+                        <img src="{{ offer.image.url }}" class="card-img-top offer-detail-img" alt="{{ offer.item_name }}">
+                        {% else %}
+                        <div class="offer-placeholder d-flex align-items-center justify-content-center">
+                            <div class="text-center">
+                                <i class="fas fa-image fa-4x text-secondary mb-3"></i>
+                                <h5 class="text-muted">{{ offer.game.title }}</h5>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <!-- Бейджи игры и качества -->
+                    <div class="badge-container position-absolute top-0 start-0 m-3 d-flex flex-column gap-2">
+                        <span class="badge badge-game">{{ offer.game.title }}</span>
+                        <span class="badge {% if offer.quality == 'legendary' %}bg-warning text-dark{% elif offer.quality == 'epic' %}bg-purple{% elif offer.quality == 'rare' %}bg-info{% else %}bg-secondary{% endif %}">
+                            {{ offer.get_quality_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Информация о товаре -->
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h1 class="display-6 fw-bold mb-3">{{ offer.item_name }}</h1>
+                            
+                            <div class="d-flex align-items-center mb-4 flex-wrap">
+                                <span class="badge bg-light text-dark me-2 mb-2">
+                                    <i class="fas fa-server me-1"></i> {{ offer.server.name }}
+                                </span>
+                                <span class="badge bg-light text-dark me-2 mb-2">
+                                    <i class="fas fa-boxes me-1"></i> {{ offer.amount }} шт.
+                                </span>
+                                <span class="badge bg-light text-dark me-2 mb-2">
+                                    <i class="fas fa-exchange-alt me-1"></i> 
+                                    {% if offer.is_tradable %}Обмен доступен{% else %}Без обмена{% endif %}
+                                </span>
+                                <span class="badge bg-light text-dark me-2 mb-2">
+                                    <i class="fas fa-calendar-alt me-1"></i> {{ offer.created_at|date:"d.m.Y" }}
+                                </span>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2 mb-3">Описание</h5>
+                                <div class="offer-description">
+                                    {{ offer.description|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <!-- Карточка покупки -->
+                            <div class="purchase-card bg-white p-4 rounded-3 shadow-sm sticky-top" style="top: 100px;">
+                                <div class="price-block mb-3 text-center">
+                                    <span class="price-tag h4 text-primary">{{ offer.price }} ₽</span>
+                                    <p class="text-muted mb-0">за 1 шт.</p>
+                                </div>
+                                
+                                {% if offer.amount > 1 %}
+                                <div class="quantity-selector mb-4">
+                                    <label for="quantity" class="form-label">Количество:</label>
+                                    <div class="input-group">
+                                        <button class="btn btn-outline-secondary" type="button" id="decrease-qty">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" class="form-control text-center" id="quantity" value="1" min="1" max="{{ offer.amount }}">
+                                        <button class="btn btn-outline-secondary" type="button" id="increase-qty">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <small class="form-text text-muted">Доступно: {{ offer.amount }} шт.</small>
+                                </div>
+                                
+                                <div class="total-price mb-4 text-center">
+                                    <p class="mb-1">Итого:</p>
+                                    <h4 class="fw-bold text-primary total-amount">{{ offer.price }} ₽</h4>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-lg buy-now-btn">
+                                        <i class="fas fa-shopping-cart me-2"></i> Купить сейчас
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Блок продавца (для мобильной версии) -->
+            <div class="card border-0 shadow-sm mb-4 d-block d-lg-none">
+                <div class="card-body p-4">
+                    <h5 class="border-bottom pb-2 mb-3">
+                        <i class="fas fa-user-circle me-2"></i>Продавец
+                    </h5>
+                    <div class="d-flex align-items-center mb-3">
+                        {% if seller_profile.avatar %}
+                        <img src="{{ seller_profile.avatar.url }}" class="user-avatar me-3" style="width: 60px; height: 60px;" alt="{{ offer.seller.username }}">
+                        {% else %}
+                        <div class="user-avatar-placeholder me-3">
+                            <i class="fas fa-user fa-2x text-white"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-1">{{ offer.seller.username }}</h5>
+                            <div class="d-flex align-items-center">
+                                <span class="badge {% if seller_profile.online_status %}badge-online{% else %}badge-offline{% endif %} me-2">
+                                    {% if seller_profile.online_status %}Онлайн{% else %}Офлайн{% endif %}
+                                </span>
+                                <div class="rating-stars">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= seller_rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-1">{{ seller_rating }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3 text-center">
+                        <div class="flex-grow-1 border-end">
+                            <h5 class="mb-0">{{ reviews.count }}</h5>
+                            <small class="text-muted">Отзывов</small>
+                        </div>
+                        <div class="flex-grow-1 border-end">
+                            <h5 class="mb-0">{{ positive_reviews }}</h5>
+                            <small class="text-muted">Положительных</small>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-0">{{ offer.seller.offer_set.count }}</h5>
+                            <small class="text-muted">Продаж</small>
+                        </div>
+                    </div>
+                    <div class="offer-seller-info__contact text-small">
+                        {% if user.is_authenticated and user != offer.seller %}
+                        <a href="{% url 'user_profile' offer.seller.username %}" class="btn btn-primary">
+                            <i class="fas fa-user"></i> Профиль продавца
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Отзывы о продавце -->
+            <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-comments me-2"></i>Отзывы о продавце
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if reviews %}
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-4">
+                                <h2 class="mb-0 fw-bold">{{ seller_rating }}</h2>
+                                <div class="d-flex">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= seller_rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted">{{ reviews.count }} отзывов</small>
+                            </div>
+                            <div class="w-100">
+                                <div class="mb-1 d-flex align-items-center">
+                                    <span class="me-2">5</span>
+                                    <div class="progress flex-grow-1" style="height: 12px;">
+                                        <div class="progress-bar bg-success" style="width: {{ positive_reviews|floatformat:0 }}%;"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-1 d-flex align-items-center">
+                                    <span class="me-2">4</span>
+                                    <div class="progress flex-grow-1" style="height: 12px;">
+                                        <div class="progress-bar bg-info" style="width: 15%;"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-1 d-flex align-items-center">
+                                    <span class="me-2">3</span>
+                                    <div class="progress flex-grow-1" style="height: 12px;">
+                                        <div class="progress-bar bg-warning" style="width: 5%;"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-1 d-flex align-items-center">
+                                    <span class="me-2">2</span>
+                                    <div class="progress flex-grow-1" style="height: 12px;">
+                                        <div class="progress-bar bg-warning" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2">1</span>
+                                    <div class="progress flex-grow-1" style="height: 12px;">
+                                        <div class="progress-bar bg-danger" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Список отзывов -->
+                    <div class="review-list">
+                        {% for review in reviews %}
+                        <div class="review-item mb-4 pb-4 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="d-flex mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if review.reviewer.userprofile.avatar %}
+                                    <a href="{% url 'user_profile' review.reviewer.username %}">
+                                        <img src="{{ review.reviewer.userprofile.avatar.url }}" class="user-avatar" alt="{{ review.reviewer.username }}">
+                                    </a>
+                                    {% else %}
+                                    <a href="{% url 'user_profile' review.reviewer.username %}">
+                                        <div class="user-avatar-placeholder">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <a href="{% url 'user_profile' review.reviewer.username %}" class="text-decoration-none text-body">
+                                            <h6 class="mb-0 me-2">{{ review.reviewer.username }}</h6>
+                                        </a>
+                                        <div class="text-warning">
+                                            {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star"></i>
+                                            {% else %}
+                                            <i class="far fa-star"></i>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <p class="small text-muted mb-2">{{ review.created_at|date:"d.m.Y H:i" }}</p>
+                                    <div class="review-content">
+                                        <p class="mb-0">{{ review.comment }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                        <h5>Пока нет отзывов</h5>
+                        <p class="text-muted">Этот продавец еще не получил отзывов.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Похожие предложения (мобильная версия) -->
+            <div class="d-block d-lg-none">
+                <h5 class="mb-3 fw-bold">Похожие предложения</h5>
+                <div class="row g-3">
+                    {% for similar_offer in similar_offers %}
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm offer-card">
+                            <div class="position-relative">
+                                {% if similar_offer.image %}
+                                <img src="{{ similar_offer.image.url }}" class="card-img-top game-cover" alt="{{ similar_offer.item_name }}">
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+                                    <i class="fas fa-image fa-2x text-secondary"></i>
+                                </div>
+                                {% endif %}
+                                <span class="badge badge-game position-absolute top-0 start-0 m-2">{{ similar_offer.game.title }}</span>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title mb-2">{{ similar_offer.item_name }}</h5>
+                                <p class="card-text text-muted small mb-3">{{ similar_offer.description|truncatechars:60 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="price-tag">{{ similar_offer.price }} ₽</span>
+                                    <a href="{% url 'offer_detail' similar_offer.id %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-light text-center">
+                            Нет похожих предложений
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Боковая колонка -->
+        <div class="col-lg-4 d-none d-lg-block">
+            <!-- Информация о продавце -->
+            <div class="card border-0 shadow-sm mb-4 seller-card" data-aos="fade-left">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-user-circle me-2"></i>Продавец
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if seller_profile.avatar %}
+                        <img src="{{ seller_profile.avatar.url }}" class="user-avatar me-3" style="width: 60px; height: 60px;" alt="{{ offer.seller.username }}">
+                        {% else %}
+                        <div class="user-avatar-placeholder me-3">
+                            <i class="fas fa-user fa-2x text-white"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="mb-1">{{ offer.seller.username }}</h5>
+                            <div class="d-flex align-items-center">
+                                <span class="badge {% if seller_profile.online_status %}badge-online{% else %}badge-offline{% endif %} me-2">
+                                    {% if seller_profile.online_status %}Онлайн{% else %}Офлайн{% endif %}
+                                </span>
+                                <div class="rating-stars">
+                                    {% for i in "12345" %}
+                                    {% if forloop.counter <= seller_rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3 seller-stats text-center">
+                        <div class="stat-block flex-grow-1 border-end">
+                            <div class="stat-value">{{ seller_rating }}/5</div>
+                            <div class="stat-label">Рейтинг</div>
+                        </div>
+                        <div class="stat-block flex-grow-1 border-end">
+                            <div class="stat-value">{{ reviews.count }}</div>
+                            <div class="stat-label">Отзывов</div>
+                        </div>
+                        <div class="stat-block flex-grow-1">
+                            <div class="stat-value">{{ offer.seller.offer_set.count }}</div>
+                            <div class="stat-label">Товаров</div>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <div class="reviews_write">
+                            {% if user.is_authenticated and user != offer.seller %}
+                            <a href="{% url 'user_profile' offer.seller.username %}" class="btn btn-primary">
+                                <i class="fas fa-user me-2"></i> Профиль продавца
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Похожие предложения -->
+            <div class="card border-0 shadow-sm" data-aos="fade-left" data-aos-delay="200">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-list me-2"></i>Похожие предложения
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for similar_offer in similar_offers %}
+                        <a href="{% url 'offer_detail' similar_offer.id %}" class="list-group-item list-group-item-action p-3">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if similar_offer.image %}
+                                    <img src="{{ similar_offer.image.url }}" class="similar-offer-img rounded" alt="{{ similar_offer.item_name }}">
+                                    {% else %}
+                                    <div class="similar-offer-placeholder rounded d-flex align-items-center justify-content-center bg-light">
+                                        <i class="fas fa-image text-secondary"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ similar_offer.item_name }}</h6>
+                                    <p class="text-muted small mb-1">{{ similar_offer.get_quality_display }}</p>
+                                    <div class="price-tag">{{ similar_offer.price }} ₽</div>
+                                </div>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="p-4 text-center text-muted">
+                            <i class="fas fa-search me-2"></i> Нет похожих предложений
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center p-3">
+                    <a href="{% url 'offer_listing' %}?game={{ offer.game.id }}" class="text-decoration-none">
+                        <i class="fas fa-th-list me-1"></i> Смотреть все предложения
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if offer.amount > 1 %}
+        const quantityInput = document.getElementById('quantity');
+        const decreaseBtn = document.getElementById('decrease-qty');
+        const increaseBtn = document.getElementById('increase-qty');
+        const totalAmount = document.querySelector('.total-amount');
+        const pricePerItem = {{ offer.price }};
+        const maxQuantity = {{ offer.amount }};
+        
+        // Обновление общей стоимости
+        function updateTotal() {
+            const quantity = parseInt(quantityInput.value);
+            const total = (pricePerItem * quantity).toFixed(2);
+            totalAmount.textContent = total + ' ₽';
+        }
+        
+        // Обработчики кнопок
+        if (decreaseBtn && increaseBtn && quantityInput) {
+            decreaseBtn.addEventListener('click', function() {
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                    updateTotal();
+                }
+            });
+            
+            increaseBtn.addEventListener('click', function() {
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue < maxQuantity) {
+                    quantityInput.value = currentValue + 1;
+                    updateTotal();
+                }
+            });
+            
+            quantityInput.addEventListener('change', function() {
+                let value = parseInt(this.value);
+                
+                if (isNaN(value) || value < 1) {
+                    value = 1;
+                } else if (value > maxQuantity) {
+                    value = maxQuantity;
+                }
+                
+                this.value = value;
+                updateTotal();
+            });
+        }
+        {% endif %}
+        
+        // Инициализация AOS, если библиотека подключена
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                once: true,
+                disable: 'mobile',
+                duration: 800
+            });
+        }
+    });
+</script>
+{% endblock %}

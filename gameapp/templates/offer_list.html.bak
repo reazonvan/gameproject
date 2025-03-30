@@ -1,0 +1,163 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section mb-4">
+    <div class="container">
+        <h1 class="display-5 fw-bold mb-3">Торговая площадка игровых предметов</h1>
+        <p class="lead mb-4">Покупайте и продавайте предметы безопасно и выгодно</p>
+        <div class="search-box">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Найти предмет или игру...">
+                <button class="btn btn-primary" type="button">
+                    <i class="fas fa-search me-1"></i> Поиск
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Фильтры</h5>
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="mb-3">
+                        <label class="form-label">Игра</label>
+                        <select name="game" class="form-select">
+                            <option value="">Все игры</option>
+                            {% for game in games %}
+                            <option value="{{ game.id }}">{{ game.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="fas fa-check me-1"></i> Применить
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <h6><i class="fas fa-chart-line me-2"></i>Статистика</h6>
+            <div class="mt-3">
+                <p class="mb-1">Предложений: <strong>{{ total_offers }}</strong></p>
+                <p class="mb-1">Пользователей онлайн: <strong>{{ online_users }}</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">Последние предложения</h4>
+            <div class="d-flex">
+                <div class="btn-group" role="group">
+                    <a href="?sort=new" class="btn btn-outline-primary active">Новые</a>
+                    <a href="?sort=cheap" class="btn btn-outline-primary">Дешевые</a>
+                    <a href="?sort=expensive" class="btn btn-outline-primary">Дорогие</a>
+                </div>
+            </div>
+        </div>
+
+        {% for offer in offers %}
+        <div class="offer-card">
+            <div class="row g-0">
+                <div class="col-md-2">
+                    {% if offer.game.cover_image %}
+                    <img src="{{ offer.game.cover_image.url }}" class="game-cover w-100" alt="{{ offer.game.title }}">
+                    {% else %}
+                    <div class="game-cover bg-dark d-flex align-items-center justify-content-center">
+                        <i class="fas fa-gamepad fa-3x text-light"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-7">
+                    <div class="p-3">
+                        <span class="badge badge-game mb-2">{{ offer.game.title }}</span>
+                        <h5 class="mb-2">{{ offer.item_name }}</h5>
+                        <p class="text-muted mb-2">{{ offer.description|truncatechars:100 }}</p>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-secondary me-2">{{ offer.server.name }}</span>
+                            <span class="badge bg-warning text-dark">{{ offer.amount }} шт.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 h-100 d-flex flex-column">
+                        <div class="mb-3 text-end">
+                            <span class="price-tag fs-4">{{ offer.price }} ₽</span>
+                            <p class="text-muted small mb-0">за 1 шт.</p>
+                        </div>
+                        <a href="{% url 'offer_detail' offer.id %}" class="btn btn-primary mt-auto">
+                            <i class="fas fa-shopping-cart me-1"></i> Купить
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="seller-info px-3 pb-3">
+                <div class="d-flex align-items-center">
+                    {% if offer.seller.userprofile.avatar %}
+                    <img src="{{ offer.seller.userprofile.avatar.url }}" class="user-avatar me-2" alt="{{ offer.seller.username }}">
+                    {% else %}
+                    <img src="https://via.placeholder.com/40" class="user-avatar me-2" alt="{{ offer.seller.username }}">
+                    {% endif %}
+                    <div class="me-auto">
+                        <strong>{{ offer.seller.username }}</strong>
+                        <span class="badge {% if offer.seller.userprofile.online_status %}badge-online{% else %}badge-offline{% endif %} ms-2">
+                            {% if offer.seller.userprofile.online_status %}online{% else %}offline{% endif %}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-success me-2"><i class="fas fa-thumbs-up"></i> 98%</span>
+                        <span class="text-muted"><i class="fas fa-comment"></i> 245</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info text-center py-4">
+            <i class="fas fa-info-circle fa-3x mb-3"></i>
+            <h4>Предложения не найдены</h4>
+            <p class="mb-0">Попробуйте изменить параметры поиска</p>
+        </div>
+        {% endfor %}
+
+        <!-- Пагинация -->
+        {% if offers.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if offers.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ offers.previous_page_number }}">Назад</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Назад</a>
+                </li>
+                {% endif %}
+
+                {% for i in offers.paginator.page_range %}
+                {% if offers.number == i %}
+                <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if offers.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ offers.next_page_number }}">Вперед</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Вперед</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

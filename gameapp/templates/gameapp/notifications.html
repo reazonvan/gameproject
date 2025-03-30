@@ -1,0 +1,309 @@
+{% extends 'gameapp/base.html' %}
+
+{% block title %}Уведомления | InexShop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm rounded-lg">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Уведомления</h5>
+                    <div>
+                        <form method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="mark_all_read">
+                            <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">
+                                <i class="fas fa-check-double me-2"></i>Отметить все как прочитанные
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if not table_exists %}
+                    <div class="p-5 text-center">
+                        <i class="fas fa-database mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                        <h5>Система уведомлений не инициализирована</h5>
+                        <p class="text-muted">Таблица уведомлений не найдена в базе данных. Необходимо выполнить миграции.</p>
+                        <div class="mt-3">
+                            <code class="bg-light p-2 rounded">python manage.py migrate</code>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="notification-list">
+                        <!-- Непрочитанные уведомления -->
+                        <div class="notification-group">
+                            <div class="notification-group-header px-4 py-2" {% if not unread_notifications %}style="display: none;"{% endif %}>
+                                <h6 class="text-muted mb-0 small">Непрочитанные</h6>
+                            </div>
+                            
+                            {% if unread_notifications %}
+                                {% for notification in unread_notifications %}
+                                <a href="{{ notification.link|default:'#' }}" class="notification-item unread">
+                                    <div class="notification-icon {{ notification.get_icon_class }}">
+                                        <i class="{{ notification.get_icon_class|slice:'12:' }}"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-text">{{ notification.title }}</p>
+                                        <p class="notification-time">
+                                            {% if notification.created_at.date == today %}
+                                                {{ notification.created_at|time:"H:i" }}
+                                            {% elif notification.created_at.date == yesterday %}
+                                                Вчера
+                                            {% else %}
+                                                {{ notification.created_at|date:"j F" }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="notification-actions">
+                                        <form method="POST" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="mark_read">
+                                            <input type="hidden" name="notification_id" value="{{ notification.id }}">
+                                            <button type="submit" class="btn btn-sm btn-light rounded-circle">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            {% else %}
+                                <div class="p-4 text-center text-muted">
+                                    <i class="fas fa-bell mb-3" style="font-size: 2rem; opacity: 0.3;"></i>
+                                    <p>У вас нет непрочитанных уведомлений</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Прочитанные уведомления -->
+                        <div class="notification-group">
+                            <div class="notification-group-header px-4 py-2" {% if not read_notifications %}style="display: none;"{% endif %}>
+                                <h6 class="text-muted mb-0 small">Ранее</h6>
+                            </div>
+                            
+                            {% if read_notifications %}
+                                {% for notification in read_notifications %}
+                                <a href="{{ notification.link|default:'#' }}" class="notification-item">
+                                    <div class="notification-icon {{ notification.get_icon_class }}">
+                                        <i class="{{ notification.get_icon_class|slice:'12:' }}"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p class="notification-text">{{ notification.title }}</p>
+                                        <p class="notification-time">
+                                            {% if notification.created_at.date == today %}
+                                                {{ notification.created_at|time:"H:i" }}
+                                            {% elif notification.created_at.date == yesterday %}
+                                                Вчера
+                                            {% else %}
+                                                {{ notification.created_at|date:"j F" }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="notification-actions">
+                                        <form method="POST" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="notification_id" value="{{ notification.id }}">
+                                            <button type="submit" class="btn btn-sm btn-light rounded-circle">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            {% else %}
+                                <div class="p-4 text-center text-muted">
+                                    <p>Нет прочитанных уведомлений</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .notification-list {
+        overflow: hidden;
+    }
+    
+    .notification-group {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .notification-group:last-child {
+        border-bottom: none;
+    }
+    
+    .notification-group-header {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .notification-item {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        transition: all 0.3s ease;
+        position: relative;
+        text-decoration: none !important;
+        color: #333;
+    }
+    
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+    
+    .notification-item:hover {
+        background-color: rgba(67, 97, 238, 0.05);
+    }
+    
+    .notification-item.unread {
+        background-color: rgba(67, 97, 238, 0.03);
+    }
+    
+    .notification-item.unread::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+    }
+    
+    .notification-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 16px;
+        flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        font-size: 1.2rem;
+        background-size: 300% 300%;
+        animation: gradientBg 4s ease infinite;
+    }
+    
+    .notification-content {
+        flex: 1;
+        padding-right: 15px;
+    }
+    
+    .notification-text {
+        margin-bottom: 4px;
+        font-size: 0.95rem;
+        color: #333;
+        line-height: 1.4;
+    }
+    
+    .notification-text strong {
+        font-weight: 700;
+        color: #000;
+    }
+    
+    .notification-time {
+        margin-bottom: 0;
+        font-size: 0.8rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+    }
+    
+    .notification-time::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background-color: #adb5bd;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+    
+    .notification-actions {
+        flex-shrink: 0;
+    }
+    
+    .notification-actions .btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        color: #6c757d;
+    }
+    
+    .notification-actions .btn:hover {
+        background-color: white;
+        transform: scale(1.1);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .notification-item.unread .notification-actions .btn:hover {
+        color: var(--success-color);
+    }
+    
+    .notification-item:not(.unread) .notification-actions .btn:hover {
+        color: var(--warning-color);
+    }
+    
+    /* Анимация удаления/прочтения */
+    .notification-item.fade-out {
+        opacity: 0;
+        height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        overflow: hidden;
+        transition: all 0.5s ease;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateNotificationBadge() {
+        const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+        const badge = document.querySelector('.notification-badge');
+        
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        updateNotificationBadge();
+        
+        // Проверяем, нужно ли скрывать заголовок "Непрочитанные"
+        const unreadGroup = document.querySelectorAll('.notification-group')[0];
+        if (unreadGroup) {
+            const unreadHeader = unreadGroup.querySelector('.notification-group-header');
+            const unreadItems = document.querySelectorAll('.notification-item.unread').length;
+            
+            if (unreadItems === 0) {
+                if (unreadHeader) unreadHeader.style.display = 'none';
+            } else {
+                if (unreadHeader) unreadHeader.style.display = 'block';
+            }
+        }
+    });
+</script>
+{% endblock %} 
