@@ -1,0 +1,898 @@
+{% extends "gameapp/base.html" %}
+
+{% block title %}Регистрация - InexShop{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Основные стили и переменные */
+    :root {
+        --auth-primary: #4361ee;
+        --auth-secondary: #3a0ca3;
+        --auth-accent: #4cc9f0;
+        --auth-gradient: linear-gradient(135deg, var(--auth-primary), var(--auth-secondary));
+        --auth-shadow: 0 10px 30px rgba(67, 97, 238, 0.15);
+        --auth-text: #2d3748;
+        --auth-text-light: #718096;
+        --auth-success: #48bb78;
+        --auth-error: #f56565;
+        --auth-bg: #f8fafc;
+        --auth-card-bg: #ffffff;
+        --auth-input-bg: #f8fafc;
+        --auth-input-border: #e2e8f0;
+        --auth-input-focus: #4361ee;
+    }
+
+    body {
+        background-color: var(--auth-bg);
+    }
+
+    /* Контейнер авторизации */
+    .auth-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Фоновые элементы */
+    .auth-bg-shape {
+        position: absolute;
+        border-radius: 50%;
+        background: linear-gradient(45deg, var(--auth-primary), var(--auth-secondary));
+        opacity: 0.05;
+        z-index: -1;
+    }
+
+    .auth-bg-shape:nth-child(1) {
+        width: 500px;
+        height: 500px;
+        top: -250px;
+        left: -100px;
+        animation: float 15s ease-in-out infinite;
+    }
+
+    .auth-bg-shape:nth-child(2) {
+        width: 400px;
+        height: 400px;
+        bottom: -200px;
+        right: -100px;
+        animation: float 18s ease-in-out infinite 1s;
+    }
+
+    .auth-bg-shape:nth-child(3) {
+        width: 200px;
+        height: 200px;
+        bottom: 10%;
+        left: 10%;
+        animation: float 12s ease-in-out infinite 2s;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translate(0px, 0px);
+        }
+        50% {
+            transform: translate(20px, 20px);
+        }
+        100% {
+            transform: translate(0px, 0px);
+        }
+    }
+
+    /* Карточка авторизации */
+    .auth-card {
+        width: 100%;
+        max-width: 550px;
+        background: var(--auth-card-bg);
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transform: translateY(0);
+        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation: cardAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .auth-card:hover {
+        box-shadow: 0 15px 50px rgba(67, 97, 238, 0.2);
+    }
+
+    @keyframes cardAppear {
+        0% {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Шапка */
+    .auth-header {
+        background: var(--auth-gradient);
+        color: white;
+        padding: 25px 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-header h2 {
+        margin-bottom: 5px;
+        font-weight: 700;
+        font-size: 1.8rem;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .auth-header p {
+        opacity: 0.9;
+        margin-bottom: 0;
+        font-size: 0.95rem;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .auth-header-decoration {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 10%, transparent 10.5%);
+        background-size: 20px 20px;
+        opacity: 0.5;
+        animation: moveBg 30s linear infinite;
+    }
+
+    @keyframes moveBg {
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 400px 400px;
+        }
+    }
+
+    @keyframes fadeInUp {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Форма */
+    .auth-form {
+        padding: 30px;
+        animation: fadeIn 1s ease-out 0.6s both;
+    }
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        color: var(--auth-text);
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+
+    .input-group {
+        position: relative;
+        display: flex;
+    }
+
+    .input-group-text {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 1rem;
+        background-color: var(--auth-input-bg);
+        border: 1px solid var(--auth-input-border);
+        border-right: none;
+        border-radius: 8px 0 0 8px;
+        color: var(--auth-text-light);
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        flex: 1;
+        height: 48px;
+        border-radius: 0;
+        border: 1px solid var(--auth-input-border);
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+        color: var(--auth-text);
+        background-color: var(--auth-input-bg);
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--auth-input-focus);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        outline: none;
+    }
+
+    .password-toggle {
+        background-color: var(--auth-input-bg);
+        border: 1px solid var(--auth-input-border);
+        border-left: none;
+        cursor: pointer;
+        color: var(--auth-text-light);
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 15px;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .password-toggle:hover {
+        color: var(--auth-primary);
+    }
+
+    /* Прогресс пароля */
+    .password-strength {
+        margin-top: 5px;
+        font-size: 0.75rem;
+        color: var(--auth-text-light);
+    }
+
+    .progress {
+        height: 4px;
+        margin-top: 5px;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.4s ease, background-color 0.4s ease;
+    }
+
+    .strength-weak {
+        background-color: var(--auth-error);
+    }
+
+    .strength-fair {
+        background-color: #f59e0b;
+    }
+
+    .strength-good {
+        background-color: #3b82f6;
+    }
+
+    .strength-strong {
+        background-color: var(--auth-success);
+    }
+
+    /* Чекбокс */
+    .form-check {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 10px;
+    }
+
+    .form-check-input {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+        margin-top: 2px;
+        cursor: pointer;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--auth-primary);
+        border-color: var(--auth-primary);
+    }
+
+    .form-check-label {
+        font-size: 0.85rem;
+        color: var(--auth-text-light);
+        cursor: pointer;
+        flex: 1;
+    }
+
+    /* Ссылки */
+    .auth-link {
+        color: var(--auth-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+        position: relative;
+    }
+
+    .auth-link:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: -1px;
+        left: 0;
+        background-color: var(--auth-primary);
+        transition: width 0.3s ease;
+    }
+
+    .auth-link:hover {
+        color: var(--auth-secondary);
+    }
+
+    .auth-link:hover:after {
+        width: 100%;
+    }
+
+    /* Кнопка */
+    .auth-btn {
+        display: block;
+        width: 100%;
+        height: 48px;
+        border-radius: 8px;
+        background: var(--auth-gradient);
+        border: none;
+        color: white;
+        font-weight: 600;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+    }
+
+    .auth-btn:active {
+        transform: translateY(0);
+    }
+
+    .auth-btn:after {
+        content: '';
+        position: absolute;
+        width: 120%;
+        height: 120%;
+        background: rgba(255, 255, 255, 0.2);
+        top: -10%;
+        left: -10%;
+        transform: scale(0);
+        border-radius: 50%;
+        transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    .auth-btn:active:after {
+        transform: scale(1);
+    }
+
+    /* Социальные сети */
+    .social-login {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .social-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .social-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .facebook-btn {
+        background-color: #3b5998;
+    }
+
+    .google-btn {
+        background-color: #db4437;
+    }
+
+    .discord-btn {
+        background-color: #7289da;
+    }
+
+    .steam-btn {
+        background-color: #171a21;
+    }
+
+    /* Разделитель */
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+        opacity: 0.8;
+    }
+
+    .divider-line {
+        flex-grow: 1;
+        height: 1px;
+        background-color: var(--auth-input-border);
+    }
+
+    .divider-text {
+        padding: 0 15px;
+        color: var(--auth-text-light);
+        font-size: 0.85rem;
+    }
+
+    /* Футер */
+    .auth-footer {
+        text-align: center;
+        padding: 10px 30px 30px;
+        color: var(--auth-text-light);
+        animation: fadeIn 1s ease-out 1s both;
+    }
+
+    /* Всплывающие подсказки */
+    .field-tooltip {
+        position: relative;
+        display: inline-block;
+        margin-left: 5px;
+        color: var(--auth-text-light);
+    }
+
+    .field-tooltip .tooltip-text {
+        visibility: hidden;
+        width: 250px;
+        background-color: #1a202c;
+        color: #fff;
+        text-align: left;
+        border-radius: 8px;
+        padding: 10px;
+        position: absolute;
+        z-index: 10;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s, transform 0.3s;
+        transform-origin: bottom center;
+        transform: translateX(-50%) scale(0.8);
+        font-size: 0.8rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .field-tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -6px;
+        border-width: 6px;
+        border-style: solid;
+        border-color: #1a202c transparent transparent transparent;
+    }
+
+    .field-tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    /* Требования к паролю */
+    .password-requirements {
+        list-style: none;
+        padding: 0;
+        margin-top: 8px;
+        font-size: 0.8rem;
+    }
+
+    .password-requirements li {
+        margin-bottom: 6px;
+        color: var(--auth-text-light);
+        display: flex;
+        align-items: center;
+        transition: color 0.3s ease;
+    }
+
+    .password-requirements li i {
+        margin-right: 6px;
+        font-size: 0.7rem;
+        min-width: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .row.password-requirements-row {
+        margin-top: 5px;
+        margin-bottom: 15px;
+    }
+
+    .requirement-met {
+        color: var(--auth-success);
+    }
+
+    .requirement-not-met {
+        color: var(--auth-text-light);
+    }
+
+    /* Уведомления об ошибках */
+    .alert-danger {
+        background-color: rgba(245, 101, 101, 0.1);
+        color: var(--auth-error);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        animation: shakeError 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    .alert-danger i {
+        margin-right: 10px;
+        font-size: 1rem;
+    }
+
+    @keyframes shakeError {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-5px);
+        }
+        20%, 40%, 60%, 80% {
+            transform: translateX(5px);
+        }
+    }
+
+    /* Сетка */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -10px;
+        margin-left: -10px;
+    }
+
+    .col-md-6 {
+        position: relative;
+        width: 100%;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    @media (min-width: 768px) {
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+    }
+
+    /* Медиа-запросы */
+    @media (max-width: 576px) {
+        .auth-card {
+            border-radius: 0;
+            box-shadow: none;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        
+        .auth-wrapper {
+            padding: 0;
+        }
+        
+        .auth-form,
+        .auth-header,
+        .auth-footer {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .col-md-6 {
+            padding-right: 0;
+            padding-left: 0;
+        }
+    }
+
+    .form-control-right-rounded {
+        border-radius: 0 8px 8px 0 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <!-- Фоновые элементы -->
+    <div class="auth-bg-shape"></div>
+    <div class="auth-bg-shape"></div>
+    <div class="auth-bg-shape"></div>
+    
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-header-decoration"></div>
+            <h2>Регистрация аккаунта</h2>
+            <p>Создайте аккаунт, чтобы начать торговлю на InexShop</p>
+        </div>
+        
+        <div class="auth-form">
+            <form method="post" action="{% url 'register' %}">
+                {% csrf_token %}
+                
+                {% if error_message %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle"></i>{{ error_message }}
+                </div>
+                {% endif %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="username" class="form-label">
+                                Имя пользователя
+                                <span class="field-tooltip">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-text">Имя пользователя должно быть уникальным и содержать от 3 до 20 символов. Допускаются буквы, цифры и символы подчеркивания.</span>
+                                </span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control form-control-right-rounded" id="username" name="username" required autocomplete="username" minlength="3" maxlength="20">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                Электронная почта
+                                <span class="field-tooltip">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-text">Укажите действующий адрес электронной почты. На него будет отправлено письмо для подтверждения.</span>
+                                </span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control form-control-right-rounded" id="email" name="email" required autocomplete="email">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="password1" class="form-label">
+                                Пароль
+                                <span class="field-tooltip">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-text">Пароль должен содержать минимум 8 символов, включая буквы разного регистра, цифры и специальные символы.</span>
+                                </span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password1" name="password1" required autocomplete="new-password" minlength="8">
+                                <span class="input-group-text password-toggle" onclick="togglePassword('password1')">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                            <div class="password-strength">
+                                <div class="progress">
+                                    <div class="progress-bar" id="password-strength-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="password2" class="form-label">
+                                Подтверждение пароля
+                                <span class="field-tooltip">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-text">Повторите пароль для подтверждения.</span>
+                                </span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password2" name="password2" required autocomplete="new-password">
+                                <span class="input-group-text password-toggle" onclick="togglePassword('password2')">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Новый ряд для требований к паролю, разделенных на две колонки -->
+                <div class="row mb-3 password-requirements-row">
+                    <div class="col-md-6">
+                        <ul class="password-requirements" id="password-requirements-left">
+                            <li><i class="fas fa-circle"></i> Минимум 8 символов</li>
+                            <li><i class="fas fa-circle"></i> Строчные буквы (a-z)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="password-requirements" id="password-requirements-right">
+                            <li><i class="fas fa-circle"></i> Заглавные буквы (A-Z)</li>
+                            <li><i class="fas fa-circle"></i> Цифры (0-9)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                    <label class="form-check-label" for="terms">
+                        Я согласен с <a href="#" class="auth-link">Условиями использования</a> и <a href="#" class="auth-link">Политикой конфиденциальности</a> сервиса InexShop. Я подтверждаю, что мне больше 18 лет.
+                    </label>
+                </div>
+                
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-user-plus me-2"></i>Создать аккаунт
+                </button>
+                
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">или зарегистрируйтесь через</div>
+                    <div class="divider-line"></div>
+                </div>
+                
+                <div class="social-login">
+                    <a href="#" class="social-btn google-btn"><i class="fab fa-google"></i></a>
+                    <a href="#" class="social-btn facebook-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-btn discord-btn"><i class="fab fa-discord"></i></a>
+                    <a href="#" class="social-btn steam-btn"><i class="fab fa-steam"></i></a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="auth-footer">
+            <p>Уже есть аккаунт? <a href="{% url 'login' %}" class="auth-link">Войти</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- Скрипты для интерактивности формы -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Переключение видимости пароля
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            const icon = input.parentNode.querySelector('.password-toggle i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // Проверка силы пароля
+        const passwordInput = document.getElementById('password1');
+        const strengthBar = document.getElementById('password-strength-bar');
+        const requirementsLeft = document.getElementById('password-requirements-left');
+        const requirementsRight = document.getElementById('password-requirements-right');
+        
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            // Проверка требований к паролю
+            const hasLength = password.length >= 8;
+            const hasLower = /[a-z]/.test(password);
+            const hasUpper = /[A-Z]/.test(password);
+            const hasDigit = /[0-9]/.test(password);
+            
+            // Обновляем список требований в левой колонке
+            const leftItems = requirementsLeft.querySelectorAll('li');
+            
+            // Длина
+            updateRequirement(leftItems[0], hasLength);
+            
+            // Строчные буквы
+            updateRequirement(leftItems[1], hasLower);
+            
+            // Обновляем список требований в правой колонке
+            const rightItems = requirementsRight.querySelectorAll('li');
+            
+            // Заглавные буквы
+            updateRequirement(rightItems[0], hasUpper);
+            
+            // Цифры
+            updateRequirement(rightItems[1], hasDigit);
+            
+            // Расчет силы пароля
+            if (hasLength) strength += 25;
+            if (hasLower) strength += 25;
+            if (hasUpper) strength += 25;
+            if (hasDigit) strength += 25;
+            
+            // Обновляем прогресс-бар
+            strengthBar.className = 'progress-bar';
+            
+            if (strength <= 25) {
+                strengthBar.classList.add('strength-weak');
+            } else if (strength <= 50) {
+                strengthBar.classList.add('strength-fair');
+            } else if (strength <= 75) {
+                strengthBar.classList.add('strength-good');
+            } else {
+                strengthBar.classList.add('strength-strong');
+            }
+            
+            strengthBar.style.width = strength + '%';
+        });
+        
+        function updateRequirement(element, isMet) {
+            const icon = element.querySelector('i');
+            
+            if (isMet) {
+                element.classList.add('requirement-met');
+                element.classList.remove('requirement-not-met');
+                icon.className = 'fas fa-check-circle';
+                element.style.color = 'var(--auth-success)';
+                // Добавляем небольшую анимацию при выполнении требования
+                if (!element.hasAttribute('data-met')) {
+                    element.setAttribute('data-met', 'true');
+                    icon.style.transform = 'scale(1.3)';
+                    setTimeout(() => {
+                        icon.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            } else {
+                element.classList.add('requirement-not-met');
+                element.classList.remove('requirement-met');
+                icon.className = 'fas fa-circle';
+                element.style.color = 'var(--auth-text-light)';
+                // Сбрасываем атрибут, чтобы анимация сработала снова при следующем выполнении
+                if (element.hasAttribute('data-met')) {
+                    element.removeAttribute('data-met');
+                }
+            }
+        }
+        
+        // Проверка совпадения паролей
+        const confirmPasswordInput = document.getElementById('password2');
+        
+        confirmPasswordInput.addEventListener('input', function() {
+            if (passwordInput.value === this.value) {
+                this.style.borderColor = 'var(--auth-success)';
+            } else {
+                this.style.borderColor = 'var(--auth-error)';
+            }
+        });
+        
+        // Делаем функцию togglePassword глобальной
+        window.togglePassword = togglePassword;
+    });
+</script>
+{% endblock %} 

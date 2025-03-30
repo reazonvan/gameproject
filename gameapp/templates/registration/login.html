@@ -1,0 +1,18 @@
+{% extends "gameapp/base.html" %}
+
+{% block title %}Вход в систему - InexShop{% endblock %}
+
+{% block content %}
+<script>
+    // Проверяем, находимся ли мы уже на странице /accounts/login/
+    if (window.location.pathname === '/accounts/login/') {
+        // Перенаправляем на нашу кастомную страницу входа
+        window.location.href = "/login/";
+    }
+</script>
+
+<div class="container text-center my-5">
+    <p>Перенаправление...</p>
+    <p>Если вы не были перенаправлены автоматически, <a href="/login/">нажмите здесь</a>.</p>
+</div>
+{% endblock %} 

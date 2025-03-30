@@ -1,0 +1,351 @@
+{% extends 'gameapp/base.html' %}
+
+{% block title %}Каталог игр - InexShop{% endblock %}
+
+{% block extra_css %}
+<style>
+    .game-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .game-card:hover {
+        transform: translateY(-10px) !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .game-card .card-img-top {
+        transition: transform 0.5s ease;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+    }
+    
+    .game-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .badge-game {
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        font-weight: 600;
+        backdrop-filter: blur(3px);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+    
+    .game-currency {
+        display: inline-block;
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-right: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .currency-gold {
+        background-color: #ffeaa7;
+        color: #d35400;
+    }
+    
+    .currency-gems {
+        background-color: #e7f5ff;
+        color: #0984e3;
+    }
+    
+    .currency-coins {
+        background-color: #f4f6f9;
+        color: #2d3436;
+    }
+    
+    .card-title {
+        color: #2d3436;
+        font-weight: 700;
+        font-size: 1.25rem;
+        line-height: 1.3;
+    }
+    
+    .card-footer {
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+    
+    /* Анимация появления карточек */
+    .fade-in {
+        animation: fadeInAnimation 0.8s ease forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeInAnimation {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-md-8" data-aos="fade-right">
+            <h1 class="display-5 mb-3">Каталог игр</h1>
+            <p class="text-muted lead">Выберите игру и найдите нужные предметы среди тысяч предложений</p>
+            <div class="d-flex align-items-center mt-4">
+                <div class="bg-light rounded-pill px-3 py-2 d-flex align-items-center me-3">
+                    <i class="fas fa-gamepad text-primary me-2"></i>
+                    <span>{{ total_games }} игр</span>
+                </div>
+                <div class="bg-light rounded-pill px-3 py-2 d-flex align-items-center me-3">
+                    <i class="fas fa-tags text-primary me-2"></i>
+                    <span>{{ total_offers }} предложений</span>
+                </div>
+                <div class="bg-light rounded-pill px-3 py-2 d-flex align-items-center">
+                    <i class="fas fa-user text-primary me-2"></i>
+                    <span>{{ online_users }} онлайн</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 text-end d-flex flex-column align-items-end justify-content-between" data-aos="fade-left">
+            <div class="search-box mb-3">
+                <input type="text" class="form-control" id="gameSearch" onkeyup="searchGames()" aria-label="Поиск игр">
+                <i class="fas fa-search"></i>
+            </div>
+            {% if user.is_authenticated %}
+            <a href="{% url 'create_offer' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Создать объявление
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="bg-light p-4 rounded-3 shadow-sm" data-aos="fade-up">
+                <div class="d-flex flex-wrap">
+                    <a href="{% url 'game_catalog' %}" class="btn btn-sm btn-outline-primary me-2 mb-2 {% if not request.GET.genre %}active{% endif %}">Все</a>
+                    <a href="{% url 'game_catalog' %}?genre=rpg" class="btn btn-sm btn-outline-primary me-2 mb-2 {% if request.GET.genre == 'rpg' %}active{% endif %}">RPG</a>
+                    <a href="{% url 'game_catalog' %}?genre=shooter" class="btn btn-sm btn-outline-primary me-2 mb-2 {% if request.GET.genre == 'shooter' %}active{% endif %}">Shooter</a>
+                    <a href="{% url 'game_catalog' %}?genre=moba" class="btn btn-sm btn-outline-primary me-2 mb-2 {% if request.GET.genre == 'moba' %}active{% endif %}">MOBA</a>
+                    <a href="{% url 'game_catalog' %}?genre=mmo" class="btn btn-sm btn-outline-primary me-2 mb-2 {% if request.GET.genre == 'mmo' %}active{% endif %}">MMO</a>
+                    <a href="{% url 'game_catalog' %}?genre=strategy" class="btn btn-sm btn-outline-primary me-2 mb-2 {% if request.GET.genre == 'strategy' %}active{% endif %}">Strategy</a>
+                    <a href="{% url 'game_catalog' %}?genre=sports" class="btn btn-sm btn-outline-primary me-2 mb-2 {% if request.GET.genre == 'sports' %}active{% endif %}">Sports</a>
+                    <a href="{% url 'game_catalog' %}?genre=racing" class="btn btn-sm btn-outline-primary me-2 mb-2 {% if request.GET.genre == 'racing' %}active{% endif %}">Racing</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for game in games %}
+        <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:50 }}0">
+            <div class="card h-100 border-0 shadow-sm game-card" data-game-id="{{ game.id }}" data-game-name="{{ game.title }}">
+                <div class="position-relative overflow-hidden">
+                    {% if game.image %}
+                    <img src="{{ game.image.url }}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="{{ game.title }}">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 220px;">
+                        <i class="fas fa-gamepad fa-3x text-secondary"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Значок популярности игры и количества предложений -->
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <span class="badge badge-game">{{ game.offer_count }} предложений</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0 fw-bold">{{ game.title }}</h5>
+                        
+                        <!-- Значок жанра -->
+                        <span class="badge bg-primary text-white">{{ game.genre|default:"RPG" }}</span>
+                    </div>
+                    
+                    <!-- Иконки валют в игре -->
+                    <div class="mb-3 d-flex flex-wrap gap-2">
+                        {% if 'wow' in game.title|lower or 'world of warcraft' in game.title|lower %}
+                        <span class="game-currency currency-gold"><i class="fas fa-coins me-1"></i>Золото</span>
+                        {% elif 'cs' in game.title|lower or 'counter' in game.title|lower %}
+                        <span class="game-currency currency-coins"><i class="fas fa-gem me-1"></i>Скины</span>
+                        {% elif 'dota' in game.title|lower %}
+                        <span class="game-currency currency-gems"><i class="fas fa-certificate me-1"></i>Предметы</span>
+                        {% else %}
+                        <span class="game-currency currency-coins"><i class="fas fa-coins me-1"></i>Валюта</span>
+                        {% endif %}
+                        
+                        {% if forloop.counter|divisibleby:2 %}
+                        <span class="game-currency currency-gold"><i class="fas fa-user-alt me-1"></i>Аккаунты</span>
+                        {% endif %}
+                        
+                        {% if forloop.counter|divisibleby:3 %}
+                        <span class="game-currency currency-gems"><i class="fas fa-gem me-1"></i>Артефакты</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="card-text text-muted mb-4">{{ game.description|truncatechars:100 }}</p>
+                    <div class="d-flex align-items-center mb-1">
+                        <div class="me-auto">
+                            <span class="fs-5 text-primary fw-bold">от {{ game.offer_set.first.price|default:"100" }} ₽</span>
+                        </div>
+                        <div>
+                            <span class="text-muted"><i class="fas fa-users me-1"></i> {{ game.offer_set.count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer border-0 bg-white p-4">
+                    <div class="d-flex justify-content-between mb-3">
+                        <!-- Кнопка избранное -->
+                        <button class="btn btn-sm btn-outline-primary rounded-circle" title="Добавить в избранное">
+                            <i class="far fa-heart"></i>
+                        </button>
+                        
+                        <a href="{% url 'offer_listing' %}?game={{ game.id }}" class="btn btn-primary">
+                            <i class="fas fa-eye me-2"></i>Смотреть предложения
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info p-4" data-aos="fade-up">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle fa-2x me-3"></i>
+                    <div>
+                        <h5 class="mb-1">Игры не найдены</h5>
+                        <p class="mb-0">Попробуйте изменить параметры поиска или фильтры.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <div class="row mt-5" data-aos="fade-up">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.genre %}genre={{ request.GET.genre }}&{% endif %}page={{ page_obj.previous_page_number }}"><i class="fas fa-angle-left"></i></a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1"><i class="fas fa-angle-left"></i></a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in paginator.page_range %}
+                        {% if i == page_obj.number %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.genre %}genre={{ request.GET.genre }}&{% endif %}page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.genre %}genre={{ request.GET.genre }}&{% endif %}page={{ page_obj.next_page_number }}"><i class="fas fa-angle-right"></i></a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1"><i class="fas fa-angle-right"></i></a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Дополнительные анимации карточек игр при наведении
+    document.addEventListener('DOMContentLoaded', function() {
+        // Используем делегирование событий для лучшей производительности
+        document.addEventListener('mouseover', function(e) {
+            const gameCard = e.target.closest('.game-card');
+            if (gameCard) {
+                gameCard.style.transform = 'translateY(-10px)';
+                gameCard.style.boxShadow = '0 15px 30px rgba(67, 97, 238, 0.15)';
+                
+                const img = gameCard.querySelector('.card-img-top');
+                if (img) {
+                    img.style.transform = 'scale(1.05)';
+                }
+            }
+        }, true);
+        
+        document.addEventListener('mouseout', function(e) {
+            const gameCard = e.target.closest('.game-card');
+            if (gameCard) {
+                gameCard.style.transform = '';
+                gameCard.style.boxShadow = '';
+                
+                const img = gameCard.querySelector('.card-img-top');
+                if (img) {
+                    img.style.transform = '';
+                }
+            }
+        }, true);
+        
+        // Добавляем анимацию для появления карточек
+        const cards = document.querySelectorAll('.game-card');
+        
+        // Проверяем поддержку IntersectionObserver
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+        } else {
+            // Fallback для старых браузеров
+            cards.forEach(card => {
+                card.classList.add('fade-in');
+            });
+        }
+        
+        // Стилизация карточек под визуальный стиль игр
+        cards.forEach(card => {
+            const gameName = card.getAttribute('data-game-name').toLowerCase();
+            // Удален код взаимодействия с overlay
+        });
+        
+        // Кнопки "Избранное"
+        const favoriteButtons = document.querySelectorAll('.favorite-btn');
+        favoriteButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const icon = this.querySelector('i');
+                if (this.classList.contains('active')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %} 

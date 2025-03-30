@@ -1,0 +1,1164 @@
+{% extends 'gameapp/base.html' %}
+{% load static %}
+
+{% block title %}Профиль продавца: {{ profile_user.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --primary-light: #eaefff;
+        --secondary-color: #3a0ca3;
+        --accent-color: #7209b7;
+        --success-color: #2ecc71;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --light-bg: #f8f9fa;
+        --dark-bg: #343a40;
+        --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        --hover-shadow: 0 15px 35px rgba(67, 97, 238, 0.15);
+        --border-radius: 12px;
+        --border-radius-sm: 8px;
+        --transition-fast: all 0.3s ease;
+        --transition-slow: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    
+    .seller-profile-container {
+        margin-top: 2rem;
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .seller-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        padding: 1.5rem 0;
+        color: white;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(67, 97, 238, 0.2);
+        transition: var(--transition-fast);
+        transform: translateY(0);
+    }
+    
+    .seller-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9InJnYmEoMjU1LCAyNTUsIDI1NSwgMC4wNSkiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMSkiIC8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHBhdHRlcm4gaWQ9InAiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNMCAwaDEwdjEwSDB6TTEwIDEwaDEwdjEwSDEweiIgZmlsbD0idXJsKCNnKSIgLz48L3BhdHRlcm4+PHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwKSIgLz48L3N2Zz4=');
+        opacity: 0.2;
+        z-index: 0;
+        animation: patternMove 60s linear infinite;
+    }
+    
+    .profile-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 2rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    @media (min-width: 768px) {
+        .profile-content {
+            flex-direction: row;
+            text-align: left;
+            align-items: center;
+        }
+        
+        .profile-info {
+            margin-left: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .seller-actions {
+            margin-left: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+        }
+    }
+    
+    .seller-avatar-container {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 5px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+        transition: var(--transition-fast);
+        flex-shrink: 0;
+    }
+    
+    .seller-avatar-container:hover {
+        transform: scale(1.05);
+        border-color: white;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
+    
+    .seller-avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition-slow);
+    }
+    
+    .seller-avatar-container:hover .seller-avatar {
+        transform: scale(1.1);
+    }
+    
+    .seller-avatar-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        background-color: #e9ecef;
+        color: #6c757d;
+        transition: var(--transition-fast);
+    }
+    
+    .seller-avatar-container:hover .seller-avatar-placeholder {
+        background-color: #dee2e6;
+        color: #495057;
+    }
+    
+    .seller-name {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        transition: var(--transition-fast);
+    }
+    
+    .online-status {
+        display: inline-flex;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(5px);
+        border-radius: 30px;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: var(--transition-fast);
+    }
+    
+    .online-status:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-3px);
+    }
+    
+    .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 0.6rem;
+        transition: var(--transition-fast);
+    }
+    
+    .online .status-indicator {
+        background-color: var(--success-color);
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    .offline .status-indicator {
+        background-color: #718093;
+    }
+    
+    .seller-rating-container {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .rating-stars {
+        font-size: 1.6rem;
+        color: #ffc107;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .rating-stars i {
+        margin: 0 2px;
+        transition: var(--transition-fast);
+    }
+    
+    .rating-stars:hover i {
+        transform: scale(1.2);
+    }
+    
+    .rating-count {
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.9);
+        transition: var(--transition-fast);
+    }
+    
+    .seller-actions {
+        margin-top: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .btn-message {
+        background: white;
+        color: var(--primary-color);
+        border-radius: 30px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: var(--transition-fast);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        border: none;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+    
+    .btn-message:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        background-color: #fff;
+    }
+    
+    .btn-message:active {
+        transform: translateY(-1px);
+    }
+    
+    .btn-danger {
+        background-color: var(--danger-color);
+        border: none;
+        border-radius: 30px;
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.2);
+        transition: var(--transition-fast);
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+    
+    @media (min-width: 576px) {
+        .btn-message, .btn-danger {
+            width: auto;
+        }
+    }
+    
+    .btn-message i {
+        margin-right: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-message:hover i {
+        transform: translateX(-3px);
+    }
+    
+    .btn-danger:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
+    }
+    
+    .btn-danger:active {
+        transform: translateY(-2px);
+    }
+    
+    .stats-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        padding: 1.8rem;
+        margin-bottom: 2.5rem;
+        transition: var(--transition-fast);
+        transform: translateY(0) !important;
+    }
+    
+    .stats-container:hover {
+        box-shadow: var(--hover-shadow);
+        transform: translateY(0) !important;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1.2rem;
+        transition: var(--transition-fast);
+        position: relative;
+        overflow: hidden;
+        border-radius: var(--border-radius-sm);
+    }
+    
+    .stat-item:hover {
+        background-color: var(--primary-light);
+        transform: translateY(0);
+    }
+    
+    .stat-item::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        bottom: 0;
+        left: 0;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: var(--transition-fast);
+    }
+    
+    .stat-item:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        transition: var(--transition-fast);
+    }
+    
+    .stat-item:hover .stat-value {
+        transform: scale(1.1);
+        color: var(--accent-color);
+    }
+    
+    .stat-label {
+        font-size: 0.95rem;
+        color: #6c757d;
+        font-weight: 600;
+        transition: var(--transition-fast);
+    }
+    
+    .stat-item:hover .stat-label {
+        color: var(--dark-bg);
+    }
+
+    /* Анимации */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+    }
+    
+    @keyframes patternMove {
+        0% { background-position: 0% 0%; }
+        100% { background-position: 100% 100%; }
+    }
+    
+    /* Анимации для элементов при прокрутке */
+    .fade-in-section {
+        opacity: 0;
+        transform: translateY(20px);
+        visibility: hidden;
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        will-change: opacity, visibility;
+    }
+    
+    .fade-in-section.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+        visibility: visible;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.8rem;
+        color: var(--dark-bg);
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding-left: 15px;
+        transition: var(--transition-fast);
+    }
+    
+    .section-title::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        height: 70%;
+        width: 5px;
+        background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+        border-radius: 10px;
+    }
+    
+    .section-title i {
+        color: var(--primary-color);
+        margin-right: 0.7rem;
+        transition: var(--transition-fast);
+    }
+    
+    .section-title:hover i {
+        transform: rotateY(180deg);
+    }
+    
+    .seller-offers-container {
+        margin-bottom: 2.5rem;
+    }
+    
+    .offers-by-game {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1.8rem;
+        overflow: hidden;
+        transition: var(--transition-fast);
+        transform: translateY(0);
+        position: relative;
+    }
+    
+    .offers-by-game:hover {
+        box-shadow: var(--hover-shadow);
+        transform: translateY(-7px);
+    }
+    
+    .game-header {
+        padding: 1.2rem 1.5rem;
+        background: linear-gradient(to right, var(--primary-light), rgba(255, 255, 255, 0.9));
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        transition: var(--transition-fast);
+    }
+    
+    .offers-by-game:hover .game-header {
+        background: linear-gradient(to right, var(--primary-light), var(--primary-light));
+    }
+    
+    .game-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--dark-bg);
+        margin: 0;
+        transition: var(--transition-fast);
+        display: flex;
+        align-items: center;
+    }
+    
+    .game-title::before {
+        content: '\f11b'; /* Иконка геймпада */
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-right: 10px;
+        color: var(--primary-color);
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: var(--transition-fast);
+    }
+    
+    .offers-by-game:hover .game-title::before {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    .offer-card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1rem;
+        transition: var(--transition-slow);
+    }
+    
+    .offer-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--hover-shadow);
+    }
+    
+    .offer-image-container {
+        height: 170px;
+        overflow: hidden;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+        position: relative;
+    }
+    
+    .offer-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    
+    .offer-card:hover .offer-image {
+        transform: scale(1.1);
+    }
+    
+    .offer-image-container::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+        opacity: 0;
+        transition: var(--transition-fast);
+    }
+    
+    .offer-card:hover .offer-image-container::after {
+        opacity: 1;
+    }
+    
+    .offer-details {
+        padding: 1.2rem;
+        background-color: white;
+        border-bottom-left-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+    }
+    
+    .offer-title {
+        font-weight: 700;
+        margin-bottom: 0.7rem;
+        font-size: 1.15rem;
+        color: var(--dark-bg);
+        transition: var(--transition-fast);
+    }
+    
+    .offer-card:hover .offer-title {
+        color: var(--primary-color);
+    }
+    
+    .offer-price {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 1.3rem;
+        transition: var(--transition-fast);
+    }
+    
+    .offer-card:hover .offer-price {
+        color: var(--accent-color);
+        transform: scale(1.05);
+    }
+    
+    .offer-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 20px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        z-index: 1;
+        transition: var(--transition-fast);
+    }
+    
+    .offer-card:hover .offer-badge {
+        background: var(--accent-color);
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .btn-outline-primary {
+        transition: var(--transition-fast);
+        border-width: 2px;
+    }
+    
+    .btn-outline-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+    }
+    
+    .reviews-container {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        padding: 1.8rem;
+        margin-bottom: 2.5rem;
+        transition: var(--transition-fast);
+    }
+    
+    .reviews-container:hover {
+        box-shadow: var(--hover-shadow);
+    }
+    
+    .review-item {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        transition: var(--transition-fast);
+        margin-bottom: 0.5rem;
+        border-radius: var(--border-radius-sm);
+    }
+    
+    .review-item:hover {
+        background-color: var(--primary-light);
+        transform: translateY(-5px) scale(1.01);
+        border-bottom-color: transparent;
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.1);
+    }
+    
+    .review-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    
+    .reviewer-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .reviewer-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 1rem;
+        transition: var(--transition-fast);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .review-item:hover .reviewer-avatar {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+    
+    .reviewer-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition-slow);
+    }
+    
+    .review-item:hover .reviewer-avatar img {
+        transform: scale(1.1);
+    }
+    
+    .reviewer-name {
+        font-weight: 600;
+        color: var(--dark-bg);
+        font-size: 1.1rem;
+        transition: var(--transition-fast);
+    }
+    
+    .review-item:hover .reviewer-name {
+        color: var(--primary-color);
+    }
+    
+    .review-date {
+        color: #6c757d;
+        font-size: 0.9rem;
+        transition: var(--transition-fast);
+    }
+    
+    .review-rating {
+        color: #ffc107;
+        font-size: 1.3rem;
+        transition: var(--transition-fast);
+    }
+    
+    .review-item:hover .review-rating {
+        transform: scale(1.1);
+    }
+    
+    .review-content {
+        color: #495057;
+        font-size: 1rem;
+        line-height: 1.6;
+        transition: var(--transition-fast);
+    }
+    
+    .review-item:hover .review-content {
+        color: #343a40;
+    }
+    
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+    }
+    
+    .page-item {
+        margin: 0 0.3rem;
+    }
+    
+    .page-link {
+        padding: 0.7rem 1.2rem;
+        border-radius: var(--border-radius-sm);
+        background-color: white;
+        color: var(--primary-color);
+        font-weight: 600;
+        transition: var(--transition-fast);
+        box-shadow: var(--card-shadow);
+        border: none;
+    }
+    
+    .page-link:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.2);
+    }
+    
+    .page-item.active .page-link {
+        background-color: var(--primary-color);
+        color: white;
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .no-reviews,
+    .no-offers {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+        background-color: var(--light-bg);
+        border-radius: var(--border-radius);
+        transition: var(--transition-fast);
+    }
+    
+    .no-reviews:hover,
+    .no-offers:hover {
+        transform: scale(1.02);
+        box-shadow: var(--card-shadow);
+    }
+    
+    .no-reviews i,
+    .no-offers i {
+        font-size: 3rem;
+        color: #dee2e6;
+        margin-bottom: 1.2rem;
+        transition: var(--transition-fast);
+    }
+    
+    .no-reviews:hover i,
+    .no-offers:hover i {
+        color: var(--primary-color);
+        transform: scale(1.2);
+    }
+    
+    .verified-badge {
+        background-color: #3498db;
+        color: white;
+        border-radius: 20px;
+        padding: 0.4rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 1rem;
+        box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+        transition: var(--transition-fast);
+    }
+    
+    .verified-badge:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.5);
+    }
+    
+    .verified-badge i {
+        margin-right: 0.4rem;
+    }
+    
+    @media (max-width: 768px) {
+        .seller-avatar-container {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .seller-name {
+            font-size: 1.8rem;
+        }
+        
+        .stat-value {
+            font-size: 1.7rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container seller-profile-container">
+    <div class="row">
+        <div class="col-12">
+            <!-- Шапка профиля продавца -->
+            <div class="seller-header">
+                <div class="profile-content">
+                    <div class="seller-avatar-container">
+                        {% if profile_user.userprofile.avatar %}
+                            <img src="{{ profile_user.userprofile.avatar.url }}" alt="{{ profile_user.username }}" class="seller-avatar">
+                        {% else %}
+                            <div class="seller-avatar-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="profile-info">
+                        <h1 class="seller-name">
+                            {{ profile_user.username }}
+                            {% if profile_user.userprofile.is_verified %}
+                                <span class="verified-badge">
+                                    <i class="fas fa-check-circle"></i> Проверенный продавец
+                                </span>
+                            {% endif %}
+                        </h1>
+                        
+                        <div class="online-status {% if profile_user.userprofile.online_status %}online{% else %}offline{% endif %}">
+                            <span class="status-indicator"></span>
+                            {% if profile_user.userprofile.online_status %}Онлайн{% else %}Был в сети {{ profile_user.userprofile.last_online|timesince }} назад{% endif %}
+                        </div>
+                        
+                        <div class="seller-rating-container">
+                            <div class="rating-stars">
+                                {% for i in '12345'|make_list %}
+                                    {% if forloop.counter <= avg_rating_int %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif forloop.counter <= avg_rating_half %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="rating-count">{{ avg_rating }} из 5 ({{ reviews_count }} отзывов)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="seller-actions">
+                        <button class="btn btn-message" onclick="startChatWithSeller('{{ profile_user.id }}')">
+                            <i class="fas fa-comment"></i> Написать сообщение
+                        </button>
+                        <button class="btn btn-danger" onclick="reportSeller('{{ profile_user.id }}')">
+                            <i class="fas fa-flag"></i> Пожаловаться на нарушения
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Статистика продавца -->
+    <div class="row fade-in-section">
+        <div class="col-12">
+            <div class="stats-container">
+                <div class="row">
+                    <div class="col-md-4 col-6">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ profile_user.userprofile.offers_count }}</div>
+                            <div class="stat-label">Активных предложений</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-6">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ profile_user.userprofile.sales_count }}</div>
+                            <div class="stat-label">Продаж</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-6">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ profile_user.date_joined|date:"d F Y" }} г.</div>
+                            <div class="stat-label">На сайте с</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Предложения продавца по играм -->
+    <div class="row fade-in-section">
+        <div class="col-12">
+            <h2 class="section-title"><i class="fas fa-tags"></i> Предложения продавца</h2>
+            
+            <div class="seller-offers-container">
+                {% if games_with_offers %}
+                    {% for game in games_with_offers %}
+                        <div class="offers-by-game fade-in-section">
+                            <div class="game-header">
+                                <h3 class="game-title">{{ game.title }}</h3>
+                            </div>
+                            
+                            <div class="row p-3">
+                                {% for offer in game.offers %}
+                                    <div class="col-md-4 col-sm-6 mb-4 fade-in-section" data-delay="{{ forloop.counter0|add:forloop.parentloop.counter0 }}">
+                                        <div class="card offer-card">
+                                            <div class="offer-image-container">
+                                                {% if offer.images.first %}
+                                                    <img src="{{ offer.images.first.image.url }}" alt="{{ offer.item_name }}" class="offer-image">
+                                                {% else %}
+                                                    <div class="offer-image bg-light d-flex align-items-center justify-content-center">
+                                                        <i class="fas fa-image text-muted fa-3x"></i>
+                                                    </div>
+                                                {% endif %}
+                                                
+                                                <span class="offer-badge">{{ offer.get_quality_display }}</span>
+                                            </div>
+                                            
+                                            <div class="offer-details">
+                                                <h4 class="offer-title">{{ offer.item_name }}</h4>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="offer-price">{{ offer.price }} ₽</span>
+                                                    <a href="{% url 'offer_detail' offer.id %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-offers fade-in-section">
+                        <i class="fas fa-store-slash d-block"></i>
+                        <p>У продавца пока нет активных предложений</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Отзывы о продавце -->
+    <div class="row fade-in-section">
+        <div class="col-12">
+            <h2 class="section-title"><i class="fas fa-star"></i> Отзывы о продавце</h2>
+            
+            <div class="reviews-container">
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="review-item fade-in-section" data-delay="{{ forloop.counter0 }}">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <div class="reviewer-avatar">
+                                        {% if review.reviewer.userprofile.avatar %}
+                                            <img src="{{ review.reviewer.userprofile.avatar.url }}" alt="{{ review.reviewer.username }}">
+                                        {% else %}
+                                            <div class="bg-light text-center h-100 d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="reviewer-name">{{ review.reviewer.username }}</div>
+                                        <div class="review-date">{{ review.created_at|date:"d.m.Y" }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="review-rating">
+                                    {% for i in '12345'|make_list %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="review-content">
+                                {% if review.comment %}
+                                    {{ review.comment }}
+                                {% else %}
+                                    <span class="text-muted">Пользователь не оставил комментарий</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    
+                    {% if is_paginated %}
+                        <div class="pagination-container fade-in-section">
+                            <ul class="pagination">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1">Первая</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Следующая</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Последняя</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="no-reviews fade-in-section">
+                        <i class="fas fa-comments-slash d-block"></i>
+                        <p>У продавца пока нет отзывов</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Функция для начала чата с продавцом
+    function startChatWithSeller(sellerId) {
+        // Отправляем AJAX запрос для создания диалога с продавцом
+        fetch('/start-chat-with-seller/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                seller_id: sellerId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Перенаправляем на страницу чата
+                window.location.href = '/chat/?conversation=' + data.conversation_id;
+            } else {
+                alert('Произошла ошибка при создании диалога: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при создании диалога');
+        });
+    }
+    
+    // Функция для отправки жалобы на продавца
+    function reportSeller(sellerId) {
+        const reason = prompt('Укажите причину жалобы:');
+        if (reason) {
+            // Здесь будет отправка жалобы на сервер
+            alert('Ваша жалоба отправлена администрации. Спасибо за обращение!');
+            // В реальном приложении здесь должен быть код для отправки жалобы на сервер
+        }
+    }
+    
+    // Анимации для элементов при скролле
+    document.addEventListener('DOMContentLoaded', function() {
+        const faders = document.querySelectorAll('.fade-in-section');
+        
+        const appearOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -100px 0px"
+        };
+        
+        const appearOnScroll = new IntersectionObserver(
+            function(entries, appearOnScroll) {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    } else {
+                        const delay = entry.target.dataset.delay || 0;
+                        setTimeout(() => {
+                            entry.target.classList.add('is-visible');
+                        }, delay * 100);
+                        appearOnScroll.unobserve(entry.target);
+                    }
+                });
+            }, 
+            appearOptions
+        );
+        
+        faders.forEach(fader => {
+            appearOnScroll.observe(fader);
+        });
+        
+        // Анимация звездного рейтинга
+        const ratingStars = document.querySelectorAll('.rating-stars i');
+        ratingStars.forEach((star, index) => {
+            setTimeout(() => {
+                star.style.opacity = '0';
+                star.style.transform = 'scale(0.5)';
+                
+                setTimeout(() => {
+                    star.style.transition = 'all 0.3s ease';
+                    star.style.opacity = '1';
+                    star.style.transform = 'scale(1.2)';
+                    
+                    setTimeout(() => {
+                        star.style.transform = 'scale(1)';
+                    }, 200);
+                }, index * 100);
+            }, 300);
+        });
+        
+        // Анимация для статистики
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach((stat, index) => {
+            // Проверяем, не является ли текущее значение датой
+            if (!stat.textContent.includes('г.')) { // Если это не дата (не содержит "г.")
+                const value = parseInt(stat.textContent);
+                if (!isNaN(value) && value > 0) {
+                    stat.textContent = '0';
+                    
+                    setTimeout(() => {
+                        animateValue(stat, 0, value, 1000);
+                    }, 500 + (index * 100));
+                }
+            }
+        });
+        
+        // Микро-анимации для интерактивных элементов
+        const offerCards = document.querySelectorAll('.offer-card');
+        offerCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            });
+        });
+    });
+    
+    // Функция для анимированного счетчика
+    function animateValue(obj, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.textContent = Math.floor(progress * (end - start) + start);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+</script>
+{% endblock %} 

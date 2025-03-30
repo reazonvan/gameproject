@@ -1,0 +1,94 @@
+# Определение этапов CI/CD конвейера
+stages:
+  - lint             # Этап статического анализа кода
+  - test             # Этап юнит-тестирования
+  - build            # Этап сборки Docker-образа
+  - deploy           # Этап развертывания приложения
+
+# Определение глобальных переменных, доступных во всех заданиях
+variables:
+  DOCKER_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG  # Имя Docker-образа на основе имени ветки/тега
+  POSTGRES_DB: test_db                                  # Имя тестовой базы данных PostgreSQL
+  POSTGRES_USER: postgres                               # Имя пользователя для тестовой базы данных
+  POSTGRES_PASSWORD: postgres                           # Пароль для тестовой базы данных
+  POSTGRES_HOST: postgres                               # Хост для тестовой базы данных
+  DATABASE_URL: "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:5432/$POSTGRES_DB"  # URL подключения к базе данных
+
+# Задание для проверки качества кода с помощью flake8
+lint:
+  stage: lint                       # Выполняется на этапе lint
+  image: python:3.10-slim           # Используем образ Python 3.10
+  before_script:                    # Команды, выполняемые перед основным скриптом
+    - pip install flake8            # Установка инструмента flake8
+  script:                           # Основной скрипт задания
+    - flake8                        # Запуск проверки стиля кода
+
+# Задание для запуска тестов
+test:
+  stage: test                       # Выполняется на этапе test
+  image: python:3.10-slim           # Используем образ Python 3.10
+  services:                         # Сервисы, необходимые для тестирования
+    - name: postgres:13             # Используем PostgreSQL 13
+      alias: postgres               # Задаем алиас для сервиса
+  before_script:                    # Команды, выполняемые перед основным скриптом
+    - pip install -r requirements.txt  # Установка зависимостей проекта
+    - pip install pytest pytest-django  # Установка инструментов для тестирования
+  script:                           # Основной скрипт задания
+    - python manage.py collectstatic --noinput  # Сбор статических файлов
+    - pytest                        # Запуск тестов с помощью pytest
+
+# Задание для сборки Docker-образа
+build:
+  stage: build                      # Выполняется на этапе build
+  image: docker:20.10.16            # Используем образ Docker 20.10.16
+  services:                         # Сервисы, необходимые для сборки
+    - docker:20.10.16-dind          # Docker in Docker (для сборки контейнеров)
+  before_script:                    # Команды, выполняемые перед основным скриптом
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY  # Авторизация в реестре Docker
+  script:                           # Основной скрипт задания
+    - docker build -t $DOCKER_IMAGE .  # Сборка Docker-образа
+    - docker push $DOCKER_IMAGE     # Отправка образа в реестр
+  only:                             # Ограничение выполнения задания только для указанных веток
+    - master                        # Ветка master
+    - main                          # Ветка main
+    - develop                       # Ветка develop
+
+# Задание для развертывания в тестовой среде
+deploy_staging:
+  stage: deploy                     # Выполняется на этапе deploy
+  image: alpine:latest              # Используем образ Alpine Linux
+  before_script:                    # Команды, выполняемые перед основным скриптом
+    - apk add --no-cache openssh-client  # Установка SSH-клиента
+    - eval $(ssh-agent -s)          # Запуск SSH-агента
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -  # Добавление приватного ключа
+    - mkdir -p ~/.ssh               # Создание директории для SSH-конфигурации
+    - chmod 700 ~/.ssh              # Настройка прав доступа для SSH-директории
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts  # Добавление известных хостов
+    - chmod 644 ~/.ssh/known_hosts  # Настройка прав доступа для файла known_hosts
+  script:                           # Основной скрипт задания
+    - ssh $STAGING_SERVER_USER@$STAGING_SERVER "cd $STAGING_DEPLOY_DIR && docker-compose pull && docker-compose up -d"  # Обновление и запуск приложения на тестовом сервере
+  environment:                      # Определение окружения для задания
+    name: staging                   # Имя окружения - staging (тестовое)
+  only:                             # Ограничение выполнения задания только для указанных веток
+    - develop                       # Только для ветки develop
+
+# Задание для развертывания в производственной среде
+deploy_production:
+  stage: deploy                     # Выполняется на этапе deploy
+  image: alpine:latest              # Используем образ Alpine Linux
+  before_script:                    # Команды, выполняемые перед основным скриптом
+    - apk add --no-cache openssh-client  # Установка SSH-клиента
+    - eval $(ssh-agent -s)          # Запуск SSH-агента
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -  # Добавление приватного ключа
+    - mkdir -p ~/.ssh               # Создание директории для SSH-конфигурации
+    - chmod 700 ~/.ssh              # Настройка прав доступа для SSH-директории
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts  # Добавление известных хостов
+    - chmod 644 ~/.ssh/known_hosts  # Настройка прав доступа для файла known_hosts
+  script:                           # Основной скрипт задания
+    - ssh $PRODUCTION_SERVER_USER@$PRODUCTION_SERVER "cd $PRODUCTION_DEPLOY_DIR && docker-compose pull && docker-compose up -d"  # Обновление и запуск приложения на производственном сервере
+  environment:                      # Определение окружения для задания
+    name: production                # Имя окружения - production (производственное)
+  only:                             # Ограничение выполнения задания только для указанных веток
+    - master                        # Только для ветки master
+    - main                          # Только для ветки main
+  when: manual                      # Ручной запуск задания (требует подтверждения) 

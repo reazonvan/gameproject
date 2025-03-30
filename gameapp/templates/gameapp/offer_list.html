@@ -1,0 +1,277 @@
+﻿{% extends "gameapp/base.html" %}
+
+{% block content %}
+<!-- Обновленная героическая секция с градиентным фоном и анимацией -->
+<div class="hero-section text-center position-relative overflow-hidden" style="background: linear-gradient(135deg, #4361ee, #7209b7); padding: 6rem 0;">
+    <div class="container py-5" data-aos="zoom-in">
+        <h1 class="display-4 fw-bold mb-4 text-white text-shadow">InexShop - Торговая площадка игровых предметов</h1>
+        <p class="lead mb-5 text-white opacity-90">Покупайте и продавайте внутриигровые предметы безопасно и выгодно</p>
+        <a href="{% url 'game_catalog' %}" class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow-lg pulse-btn">
+            <i class="fas fa-gamepad me-2"></i>Перейти в каталог игр
+        </a>
+    </div>
+    <!-- Декоративные элементы -->
+    <div class="position-absolute" style="bottom: -50px; left: -50px; width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+    <div class="position-absolute" style="top: -30px; right: -30px; width: 180px; height: 180px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+</div>
+
+<div class="container">
+    <!-- Обновленная статистика с анимацией счетчиков -->
+    <div class="row py-5 my-5" data-aos="fade-up">
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100 shadow-lg rounded-lg border-0 hover-card">
+                <div class="card-body p-4">
+                    <div class="feature-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                        <i class="fas fa-gamepad fa-2x"></i>
+                    </div>
+                    <h3 class="fs-2 mb-2 counter-anim">{{ total_offers }}</h3>
+                    <p class="text-muted">Активных предложений</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100 shadow-lg rounded-lg border-0 hover-card">
+                <div class="card-body p-4">
+                    <div class="feature-icon bg-accent text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                        <i class="fas fa-dice-d20 fa-2x"></i>
+                    </div>
+                    <h3 class="fs-2 mb-2 counter-anim">{{ games.count }}</h3>
+                    <p class="text-muted">Игровых платформ</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card text-center h-100 shadow-lg rounded-lg border-0 hover-card">
+                <div class="card-body p-4">
+                    <div class="feature-icon bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <h3 class="fs-2 mb-2 counter-anim">{{ online_users }}</h3>
+                    <p class="text-muted">Пользователей онлайн</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Обновленный блок "Как это работает" -->
+    <div class="container px-4 pb-5">
+        <div class="col-12 text-center mb-5" data-aos="fade-up">
+            <span class="badge bg-primary px-3 py-2 rounded-pill mb-3">Просто и удобно</span>
+            <h2 class="mb-3 display-5 fw-bold">Как это работает</h2>
+            <p class="text-muted w-75 mx-auto">Простой и безопасный способ торговли игровыми предметами с гарантией доставки</p>
+        </div>
+        
+        <div class="row align-items-center position-relative">
+            <div class="col-md-4 mb-4 position-relative step-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="card h-100 shadow-lg rounded-lg border-0 hover-card">
+                    <div class="card-body p-4 text-center position-relative">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4 position-relative" style="width: 100px; height: 100px; background-color: #007bff; box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3); z-index: 1;">
+                            <i class="fas fa-search fa-3x text-white"></i>
+                        </div>
+                        <span class="position-absolute rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; top: 20px; right: 20px; background-color: #007bff; color: white;">1</span>
+                        <h5 class="mb-3 fw-bold">Найдите предмет</h5>
+                        <p class="text-muted">Выберите игру в каталоге и найдите нужный предмет среди предложений от множества продавцов</p>
+                    </div>
+                </div>
+                <!-- Линия соединяющая с карточкой 2 -->
+                <div class="d-none d-md-block position-absolute connection-line" style="height: 2px; background-color: #007bff; top: 100px; right: -25%; width: 50%;"></div>
+            </div>
+            <div class="col-md-4 mb-4 position-relative step-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="card h-100 shadow-lg rounded-lg border-0 hover-card">
+                    <div class="card-body p-4 text-center position-relative">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4 position-relative" style="width: 100px; height: 100px; background-color: #7209b7; box-shadow: 0 10px 20px rgba(114, 9, 183, 0.3); z-index: 1;">
+                            <i class="fas fa-credit-card fa-3x text-white"></i>
+                        </div>
+                        <span class="position-absolute rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; top: 20px; right: 20px; background-color: #7209b7; color: white;">2</span>
+                        <h5 class="mb-3 fw-bold">Оплатите покупку</h5>
+                        <p class="text-muted">Используйте один из безопасных способов оплаты для приобретения товара с гарантией возврата</p>
+                    </div>
+                </div>
+                <!-- Линия соединяющая с карточкой 3 -->
+                <div class="d-none d-md-block position-absolute connection-line" style="height: 2px; background-color: #7209b7; top: 100px; right: -25%; width: 50%;"></div>
+            </div>
+            <div class="col-md-4 mb-4 position-relative step-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="card h-100 shadow-lg rounded-lg border-0 hover-card">
+                    <div class="card-body p-4 text-center position-relative">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4 position-relative" style="width: 100px; height: 100px; background-color: #6c757d; box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3); z-index: 1;">
+                            <i class="fas fa-handshake fa-3x text-white"></i>
+                        </div>
+                        <span class="position-absolute rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; top: 20px; right: 20px; background-color: #6c757d; color: white;">3</span>
+                        <h5 class="mb-3 fw-bold">Получите покупку</h5>
+                        <p class="text-muted">Продавец передаст вам предмет в игре после подтверждения оплаты в кратчайшие сроки</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Обновленные популярные игры с улучшенными карточками -->
+    <div class="row py-5 my-5">
+        <div class="col-12 text-center mb-5" data-aos="fade-up">
+            <span class="badge bg-primary px-3 py-2 rounded-pill mb-3">Огромный выбор</span>
+            <h2 class="mb-3 display-5 fw-bold">Популярные игры</h2>
+            <p class="text-muted mb-4 w-75 mx-auto">Торгуйте предметами в ваших любимых играх на самой безопасной площадке</p>
+            <a href="{% url 'game_catalog' %}" class="btn btn-outline-primary btn-lg px-4 rounded-pill">Смотреть все игры</a>
+        </div>
+        
+        {% for game in games|slice:":3" %}
+        <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:50 }}0">
+            <div class="card h-100 shadow-lg rounded-lg border-0 hover-card">
+                <div class="overflow-hidden position-relative">
+                    {% if game.image %}
+                    <img src="{{ game.image.url }}" class="card-img-top" style="height: 220px; object-fit: cover;" alt="{{ game.title }}">
+                    {% else %}
+                    <div class="card-img-top bg-gradient-primary-light d-flex align-items-center justify-content-center" style="height: 220px;">
+                        <i class="fas fa-gamepad fa-3x text-white"></i>
+                    </div>
+                    {% endif %}
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <span class="badge badge-game fw-bold">{{ game.offer_count }} товаров</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-2 fw-bold">{{ game.title }}</h5>
+                    <p class="text-muted mb-3">{{ game.description|truncatechars:100 }}</p>
+                    <a href="{% url 'offer_listing' %}?game={{ game.id }}" class="btn btn-primary w-100 rounded-pill shadow-sm">
+                        <i class="fas fa-shopping-cart me-2"></i>Смотреть предложения
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Обновленные преимущества с современным дизайном -->
+    <div class="py-5 my-5" style="background-color: #f8f9fa;">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5" data-aos="fade-up">
+                    <span class="badge text-white px-4 py-2 rounded-pill mb-3" style="background-color: #007bff;">Почему мы</span>
+                    <h2 class="mb-3 display-5 fw-bold">Наши преимущества</h2>
+                    <p class="text-muted">Почему стоит использовать InexShop для торговли игровыми предметами</p>
+                </div>
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="text-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px; background-color: #007bff;">
+                            <i class="fas fa-shield-alt fa-2x text-white"></i>
+                        </div>
+                        <h5 class="mb-3 fw-bold">Безопасность</h5>
+                        <p class="text-muted">Гарантия безопасной сделки и возврат средств при любых проблемах</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px; background-color: #fff; border: 1px solid #eee; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                            <i class="fas fa-bolt fa-2x" style="color: #007bff;"></i>
+                        </div>
+                        <h5 class="mb-3 fw-bold">Быстрые операции</h5>
+                        <p class="text-muted">Мгновенная обработка платежей и быстрая доставка предметов</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="text-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px; background-color: #6c757d;">
+                            <i class="fas fa-percent fa-2x text-white"></i>
+                        </div>
+                        <h5 class="mb-3 fw-bold">Низкая комиссия</h5>
+                        <p class="text-muted">Выгодные условия для продавцов и никаких скрытых платежей</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="text-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px; background-color: #198754;">
+                            <i class="fas fa-headset fa-2x text-white"></i>
+                        </div>
+                        <h5 class="mb-3 fw-bold">Поддержка 24/7</h5>
+                        <p class="text-muted">Наши специалисты всегда готовы помочь с любым вопросом</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Обновленный призыв к действию с более привлекательным дизайном -->
+    <div class="row py-3 my-5" data-aos="fade-up">
+        <div class="col-12">
+            <div class="card border-0 p-5 text-center rounded-lg shadow-lg overflow-hidden position-relative" style="background: linear-gradient(135deg, #4361ee, #7209b7);">
+                <div class="position-absolute" style="bottom: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                <div class="position-absolute" style="top: -30px; right: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                <div class="card-body position-relative">
+                    <h2 class="mb-3 text-white fw-bold">Готовы начать?</h2>
+                    <p class="lead mb-4 text-white opacity-90">Присоединяйтесь к тысячам игроков, которые уже используют нашу платформу</p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'game_catalog' %}" class="btn btn-light btn-lg px-4 py-2 rounded-pill shadow-lg pulse-btn">
+                            <i class="fas fa-gamepad me-2"></i>Перейти в каталог
+                        </a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg px-4 py-2 rounded-pill">
+                            <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Добавляем улучшенные анимации и эффекты
+    document.addEventListener('DOMContentLoaded', function() {
+        // Анимация счетчиков
+        const animateCounters = () => {
+            const counters = document.querySelectorAll('.counter-anim');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.innerText);
+                const duration = 1500;
+                const start = 0;
+                const increment = target / (duration / 30);
+                let current = start;
+                
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.innerText = Math.ceil(current);
+                        setTimeout(updateCounter, 30);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                
+                updateCounter();
+            });
+        };
+        
+        // Запускаем анимацию счетчиков при прокрутке до них
+        const handleIntersection = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    observer.unobserve(entry.target);
+                }
+            });
+        };
+        
+        const counterSection = document.querySelector('.counter-anim');
+        if (counterSection) {
+            const observer = new IntersectionObserver(handleIntersection, {
+                threshold: 0.1
+            });
+            observer.observe(counterSection);
+        }
+        
+        // Добавляем эффект при наведении на иконки
+        const featureIcons = document.querySelectorAll('.feature-icon, .feature-icon-lg');
+        featureIcons.forEach(icon => {
+            icon.addEventListener('mouseenter', () => {
+                icon.style.transform = 'scale(1.1) rotate(5deg)';
+            });
+            
+            icon.addEventListener('mouseleave', () => {
+                icon.style.transform = 'scale(1) rotate(0deg)';
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends 'gameapp/base.html' %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex align-items-center">
+                {% if category.icon %}
+                <img src="{{ category.icon.url }}" alt="{{ category.name }}" class="me-4" style="width: 80px; height: 80px; object-fit: cover;">
+                {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center me-4" style="width: 80px; height: 80px; border-radius: 8px;">
+                    <i class="fas fa-tag fa-2x text-primary"></i>
+                </div>
+                {% endif %}
+                <div>
+                    <h1 class="mb-2">{{ category.name }}</h1>
+                    <p class="text-muted mb-0">{{ category.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if subcategories %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="mb-3">Подкатегории</h2>
+            <div class="row">
+                {% for subcategory in subcategories %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                {% if subcategory.icon %}
+                                <img src="{{ subcategory.icon.url }}" alt="{{ subcategory.name }}" class="me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; border-radius: 50%;">
+                                    <i class="fas fa-tags text-primary"></i>
+                                </div>
+                                {% endif %}
+                                <h3 class="card-title mb-0 h5">{{ subcategory.name }}</h3>
+                            </div>
+                            <p class="card-text">{{ subcategory.description|truncatechars:100 }}</p>
+                            <a href="{% url 'game_subcategory' category.slug subcategory.slug %}" class="btn btn-primary">Просмотреть</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <!-- Боковая панель с фильтрами -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Фильтры</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="" id="filterForm">
+                        {% for filter_group in filter_groups %}
+                        <div class="mb-3">
+                            <h6>{{ filter_group.display_name }}</h6>
+                            
+                            {% if filter_group.filter_type == 'select' %}
+                            <select name="{{ filter_group.name }}" class="form-select filter-control" data-filter="{{ filter_group.name }}">
+                                <option value="">Все</option>
+                                {% for option in filter_group.options.all %}
+                                <option value="{{ option.name }}" {% if filter_params|get_item:filter_group.name == option.name %}selected{% endif %}>{{ option.display_name }}</option>
+                                {% endfor %}
+                            </select>
+                            
+                            {% elif filter_group.filter_type == 'checkbox' %}
+                            <div class="filter-checkbox-group">
+                                {% for option in filter_group.options.all %}
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input filter-control" name="{{ filter_group.name }}" value="{{ option.name }}" id="{{ filter_group.name }}_{{ option.name }}" 
+                                        {% if filter_params|get_item:filter_group.name and option.name in filter_params|get_item:filter_group.name|split:',' %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ filter_group.name }}_{{ option.name }}">{{ option.display_name }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% elif filter_group.filter_type == 'radio' %}
+                            <div class="filter-radio-group">
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input filter-control" name="{{ filter_group.name }}" value="" id="{{ filter_group.name }}_all" 
+                                        {% if filter_params|get_item:filter_group.name == None %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ filter_group.name }}_all">Все</label>
+                                </div>
+                                {% for option in filter_group.options.all %}
+                                <div class="form-check">
+                                    <input type="radio" class="form-check-input filter-control" name="{{ filter_group.name }}" value="{{ option.name }}" id="{{ filter_group.name }}_{{ option.name }}" 
+                                        {% if filter_params|get_item:filter_group.name == option.name %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ filter_group.name }}_{{ option.name }}">{{ option.display_name }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% elif filter_group.filter_type == 'range' %}
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" name="{{ filter_group.name }}_min" class="form-control filter-range" placeholder="От" min="0"
+                                        value="{% if filter_params|get_item:filter_group.name %}{{ filter_params|get_item:filter_group.name|split:'-'|first }}{% endif %}">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" name="{{ filter_group.name }}_max" class="form-control filter-range" placeholder="До" min="0"
+                                        value="{% if filter_params|get_item:filter_group.name %}{{ filter_params|get_item:filter_group.name|split:'-'|last }}{% endif %}">
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Применить фильтры</button>
+                            <a href="{% url 'game_category' category.slug %}" class="btn btn-outline-secondary">Сбросить</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <a href="{% url 'create_offer' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Создать предложение
+                </a>
+            </div>
+        </div>
+        
+        <!-- Основное содержимое с предложениями -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Предложения в категории</h2>
+                <span class="text-muted">Найдено: {{ offers.paginator.count }}</span>
+            </div>
+            
+            {% if offers %}
+            <div class="row">
+                {% for offer in offers %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ offer.item_name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ offer.game.title }} | {{ offer.server.name }}</h6>
+                            <p class="card-text">{{ offer.description|truncatechars:100 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-primary">{{ offer.price }} ₽</span>
+                                <a href="{% url 'offer_detail' offer.id %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <small>Продавец: {{ offer.seller.username }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Пагинация -->
+            {% if offers.paginator.num_pages > 1 %}
+            <nav aria-label="Page navigation" class="my-4">
+                <ul class="pagination justify-content-center">
+                    {% if offers.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in filter_params.items %}&{{ key }}={{ value }}{% endfor %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ offers.previous_page_number }}{% for key, value in filter_params.items %}&{{ key }}={{ value }}{% endfor %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in offers.paginator.page_range %}
+                        {% if offers.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > offers.number|add:'-3' and num < offers.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% for key, value in filter_params.items %}&{{ key }}={{ value }}{% endfor %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if offers.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ offers.next_page_number }}{% for key, value in filter_params.items %}&{{ key }}={{ value }}{% endfor %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ offers.paginator.num_pages }}{% for key, value in filter_params.items %}&{{ key }}={{ value }}{% endfor %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <div class="alert alert-info">
+                В данной категории пока нет предложений. Будьте первым, кто создаст предложение!
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Обработка чекбоксов для формирования списка значений через запятую
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('filterForm');
+        
+        // Обработка отправки формы для чекбоксов (собираем значения в строку через запятую)
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Обработка чекбоксов
+            const checkboxGroups = document.querySelectorAll('.filter-checkbox-group');
+            checkboxGroups.forEach(group => {
+                const name = group.querySelector('input[type="checkbox"]').name;
+                const checkedBoxes = group.querySelectorAll('input[type="checkbox"]:checked');
+                
+                if (checkedBoxes.length > 0) {
+                    // Создаем скрытое поле для группы чекбоксов
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = name;
+                    
+                    // Собираем значения через запятую
+                    const values = Array.from(checkedBoxes).map(checkbox => checkbox.value).join(',');
+                    hiddenInput.value = values;
+                    
+                    // Удаляем предыдущее скрытое поле с этим именем, если оно есть
+                    const existingInput = form.querySelector(`input[type="hidden"][name="${name}"]`);
+                    if (existingInput) {
+                        form.removeChild(existingInput);
+                    }
+                    
+                    form.appendChild(hiddenInput);
+                }
+            });
+            
+            // Обработка диапазонов
+            const rangeInputs = document.querySelectorAll('.filter-range');
+            const rangeGroups = {};
+            
+            rangeInputs.forEach(input => {
+                const name = input.name.split('_')[0];
+                const type = input.name.split('_')[1]; // min или max
+                
+                if (!rangeGroups[name]) {
+                    rangeGroups[name] = {};
+                }
+                
+                rangeGroups[name][type] = input.value;
+            });
+            
+            // Создаем скрытые поля для диапазонов
+            for (const [name, range] of Object.entries(rangeGroups)) {
+                if (range.min || range.max) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = name;
+                    hiddenInput.value = `${range.min || ''}-${range.max || ''}`;
+                    
+                    // Удаляем предыдущее скрытое поле с этим именем, если оно есть
+                    const existingInput = form.querySelector(`input[type="hidden"][name="${name}"]`);
+                    if (existingInput) {
+                        form.removeChild(existingInput);
+                    }
+                    
+                    form.appendChild(hiddenInput);
+                }
+            }
+            
+            // Удаляем исходные поля диапазонов, чтобы они не отправлялись в форме
+            rangeInputs.forEach(input => {
+                const name = input.name;
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = `_${name}`;
+                hiddenInput.value = input.value;
+                
+                input.name = '';
+            });
+            
+            // Отправляем форму
+            form.submit();
+        });
+        
+        // Автоматическая отправка формы при изменении селектов и радиокнопок
+        const autoSubmitElements = document.querySelectorAll('select.filter-control, input[type="radio"].filter-control');
+        autoSubmitElements.forEach(element => {
+            element.addEventListener('change', function() {
+                form.dispatchEvent(new Event('submit'));
+            });
+        });
+    });
+</script>
+{% endblock %} 

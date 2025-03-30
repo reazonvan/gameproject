@@ -1,0 +1,71 @@
+{% extends 'gameapp/base.html' %}
+
+{% block title %}{{ subcategory.name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'game_category' category.slug %}">{{ category.name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ subcategory.name }}</li>
+                </ol>
+            </nav>
+            
+            <div class="d-flex align-items-center">
+                {% if subcategory.icon %}
+                <img src="{{ subcategory.icon.url }}" alt="{{ subcategory.name }}" class="me-4" style="width: 80px; height: 80px; object-fit: cover;">
+                {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center me-4" style="width: 80px; height: 80px; border-radius: 8px;">
+                    <i class="fas fa-tags fa-2x text-primary"></i>
+                </div>
+                {% endif %}
+                <div>
+                    <h1 class="mb-2">{{ subcategory.name }}</h1>
+                    <p class="text-muted mb-0">{{ subcategory.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Предложения в подкатегории</h2>
+                <a href="{% url 'create_offer' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>Создать предложение
+                </a>
+            </div>
+            
+            {% if offers %}
+            <div class="row">
+                {% for offer in offers %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ offer.item_name }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ offer.game.title }} | {{ offer.server.name }}</h6>
+                            <p class="card-text">{{ offer.description|truncatechars:100 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-primary">{{ offer.price }} ₽</span>
+                                <a href="{% url 'offer_detail' offer.id %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <small>Продавец: {{ offer.seller.username }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                В данной подкатегории пока нет предложений. Будьте первым, кто создаст предложение!
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
