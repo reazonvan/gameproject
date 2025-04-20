@@ -16,7 +16,10 @@
 
 </div>
 
----
+<!-- ⚔️ ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ ⚔️ -->
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="Разделитель" style="width: 100%;">
+</div>
 
 ## 🛒 Безопасная торговля игровыми предметами и аккаунтами
 
@@ -36,11 +39,16 @@ GameTrade - это современная торговая площадка дл
 
 </div>
 
+<!-- 🎯 ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ 🎯 -->
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/fire.png" alt="Разделитель" style="width: 100%;">
+</div>
+
 ### ✨ Основные возможности
 
 <div align="center">
 
-<table>
+<table style="min-width: 300px; width: auto; max-width: 100%; overflow-x: auto; display: block;">
   <tr>
     <th align="center">🎮 Функция</th>
     <th align="center">📝 Описание</th>
@@ -73,6 +81,11 @@ GameTrade - это современная торговая площадка дл
 
 </div>
 
+<!-- 🔥 ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ 🔥 -->
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png" alt="Разделитель" style="width: 100%;">
+</div>
+
 ## 🚀 Технологический стек
 
 <div align="center">
@@ -81,19 +94,28 @@ GameTrade - это современная торговая площадка дл
 <summary><b>⚡ Используемые технологии</b></summary>
 <br>
 
+<div style="background-color: #2b2b2b; color: #f8f8f2; padding: 15px; border-radius: 10px;">
+
 | 💻 Технология | 📝 Описание |
 |---------------|-------------|
-| Django 5.0 | Мощный Python-фреймворк для веб-разработки |
-| PostgreSQL | Надёжная реляционная база данных |
-| Bootstrap 5 | Современный CSS-фреймворк для адаптивного дизайна |
-| Docker | Контейнеризация для удобного развёртывания |
-| Pillow | Обработка изображений для обложек игр и предметов |
-| Font Awesome | Иконки для улучшения пользовательского интерфейса |
-| Django ORM | Удобная работа с базой данных через объектную модель |
-| Docker Compose | Оркестрация контейнеров для разработки и продакшена |
+| <span style="color: #ff79c6;">Django 5.0</span> | Мощный Python-фреймворк для веб-разработки |
+| <span style="color: #8be9fd;">PostgreSQL</span> | Надёжная реляционная база данных |
+| <span style="color: #bd93f9;">Bootstrap 5</span> | Современный CSS-фреймворк для адаптивного дизайна |
+| <span style="color: #50fa7b;">Docker</span> | Контейнеризация для удобного развёртывания |
+| <span style="color: #ffb86c;">Pillow</span> | Обработка изображений для обложек игр и предметов |
+| <span style="color: #ff5555;">Font Awesome</span> | Иконки для улучшения пользовательского интерфейса |
+| <span style="color: #f1fa8c;">Django ORM</span> | Удобная работа с базой данных через объектную модель |
+| <span style="color: #8be9fd;">Docker Compose</span> | Оркестрация контейнеров для разработки и продакшена |
+
+</div>
 
 </details>
 
+</div>
+
+<!-- 🎮 ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ 🎮 -->
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" alt="Разделитель" style="width: 100%;">
 </div>
 
 ## 🎯 Для геймеров
@@ -109,13 +131,34 @@ GameTrade - это современная торговая площадка дл
 
 <br><br>
 
-| 👥 Кому пригодится | 📝 Преимущества |
-|-----------|-------------|
-| 👨‍🎮 Хардкорные геймеры | Доступ к редким игровым предметам и валюте |
-| 👩‍🎮 Коллекционеры | Поиск уникальных предметов для своей коллекции |
-| 💰 Торговцы | Заработок на перепродаже ценных игровых активов |
-| 🕹️ Киберспортсмены | Быстрое приобретение необходимого инвентаря |
+<table style="min-width: 300px; width: auto; max-width: 100%; overflow-x: auto; display: block;">
+  <tr>
+    <th align="center">👥 Кому пригодится</th>
+    <th align="center">📝 Преимущества</th>
+  </tr>
+  <tr>
+    <td align="center">👨‍🎮 Хардкорные геймеры</td>
+    <td>Доступ к редким игровым предметам и валюте</td>
+  </tr>
+  <tr>
+    <td align="center">👩‍🎮 Коллекционеры</td>
+    <td>Поиск уникальных предметов для своей коллекции</td>
+  </tr>
+  <tr>
+    <td align="center">💰 Торговцы</td>
+    <td>Заработок на перепродаже ценных игровых активов</td>
+  </tr>
+  <tr>
+    <td align="center">🕹️ Киберспортсмены</td>
+    <td>Быстрое приобретение необходимого инвентаря</td>
+  </tr>
+</table>
 
+</div>
+
+<!-- 💎 ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ 💎 -->
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="Разделитель" style="width: 100%;">
 </div>
 
 ## ⚙️ Установка
@@ -124,7 +167,7 @@ GameTrade - это современная торговая площадка дл
 
 <div align="center">
 
-<table>
+<table style="min-width: 300px; width: auto; max-width: 100%; overflow-x: auto; display: block;">
   <tr>
     <th align="center">🖥️ Требование</th>
     <th align="center">⚙️ Минимум</th>
@@ -153,7 +196,7 @@ GameTrade - это современная торговая площадка дл
 
 <div align="center">
 
-<table>
+<table style="min-width: 300px; width: auto; max-width: 100%; overflow-x: auto; display: block;">
   <tr>
     <th colspan="2" align="center">🚀 Установка проекта</th>
   </tr>
@@ -190,6 +233,11 @@ GameTrade - это современная торговая площадка дл
 
 </div>
 
+<!-- 🛡️ ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ 🛡️ -->
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/fire.png" alt="Разделитель" style="width: 100%;">
+</div>
+
 ## 🔧 Разработка
 
 ### Структура проекта
@@ -213,8 +261,8 @@ flowchart TD
     C3 --> C32["📄 game_list.html"]
     C3 --> C33["📄 game_detail.html"]
     
-    classDef default fill:#f5f5f5,stroke:#5d8aa8,stroke-width:2px,color:#333,rx:5px
-    classDef special fill:#ffeecc,stroke:#ff9900,stroke-width:2px,color:#333,rx:5px
+    classDef default fill:#2b2b2b,stroke:#50fa7b,stroke-width:2px,color:#f8f8f2,rx:5px
+    classDef special fill:#44475a,stroke:#ff79c6,stroke-width:2px,color:#f8f8f2,rx:5px
     
     class A,B,C default
     class C1,C2,C3 special
@@ -226,7 +274,7 @@ flowchart TD
 
 <div align="center">
 
-<table>
+<table style="min-width: 300px; width: auto; max-width: 100%; overflow-x: auto; display: block;">
   <tr>
     <th align="center">🛠️ Действие</th>
     <th align="center">💻 Команда</th>
@@ -251,29 +299,85 @@ flowchart TD
 
 </div>
 
+<!-- 🎲 ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ 🎲 -->
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" alt="Разделитель" style="width: 100%;">
+</div>
+
+## ❓ Часто задаваемые вопросы (FAQ)
+
+<div align="center" style="max-width: 800px; margin: 0 auto;">
+
+<details>
+  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px;">💰 Как работает система оплаты?</summary>
+  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
+    <p>Наша система использует защищенный эскроу-механизм: деньги замораживаются до подтверждения получения товара покупателем. Мы поддерживаем различные способы оплаты: банковские карты, электронные кошельки и криптовалюты.</p>
+  </div>
+</details>
+
+<details>
+  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px; margin-top: 10px;">🔒 Насколько безопасны сделки?</summary>
+  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
+    <p>Каждая сделка проходит через нашу защищенную систему: используется 2FA для аутентификации, все данные шифруются, а в случае спорных ситуаций работает служба поддержки. Мы также проверяем каждого продавца перед допуском к торговле.</p>
+  </div>
+</details>
+
+<details>
+  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px; margin-top: 10px;">⏱️ Сколько времени занимает сделка?</summary>
+  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
+    <p>После оплаты продавец получает уведомление и должен передать товар в течение 24 часов. Большинство сделок завершаются в течение нескольких часов. Если продавец не выходит на связь, деньги автоматически возвращаются через 72 часа.</p>
+  </div>
+</details>
+
+<details>
+  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px; margin-top: 10px;">🎮 Какие игры поддерживаются?</summary>
+  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
+    <p>Наша платформа поддерживает большинство популярных игр: World of Warcraft, CS:GO, Dota 2, League of Legends, EVE Online, Destiny 2, Escape from Tarkov и многие другие. Если вашей игры нет в списке, напишите в поддержку — мы добавим её в ближайшее время.</p>
+  </div>
+</details>
+
+<details>
+  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px; margin-top: 10px;">📱 Есть ли мобильное приложение?</summary>
+  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
+    <p>В настоящее время мы работаем над мобильным приложением для Android и iOS. Пока оно не выпущено, вы можете использовать адаптивную мобильную версию нашего сайта, которая поддерживает все функции десктопной версии.</p>
+  </div>
+</details>
+
+</div>
+
+<!-- 🏆 ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ 🏆 -->
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png" alt="Разделитель" style="width: 100%;">
+</div>
+
 ## 📧 Контакты
 
 <div align="center">
 
-<table>
+<table style="min-width: 300px; width: auto; max-width: 100%; overflow-x: auto; display: block;">
   <tr>
     <th align="center">📱 Контакт</th>
     <th align="center">🔗 Ссылка</th>
   </tr>
   <tr>
     <td align="center">📧 Email</td>
-    <td align="center"><a href="mailto:support@gametrade.ru">support@gametrade.ru</a></td>
+    <td align="center"><a href="mailto:reazonvan206@gmail.com">reazonvan206@gmail.com</a></td>
   </tr>
   <tr>
     <td align="center">💬 Telegram</td>
-    <td align="center"><a href="https://t.me/gametrade">@gametrade</a></td>
+    <td align="center"><a href="https://t.me/reazonvan">@reazonvan</a></td>
   </tr>
   <tr>
     <td align="center">🌐 GitHub</td>
-    <td align="center"><a href="https://github.com/yourusername">GitHub</a></td>
+    <td align="center"><a href="https://github.com/ReazonVan">ReazonVan</a></td>
   </tr>
 </table>
 
+</div>
+
+<!-- 🌟 ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ 🌟 -->
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" alt="Разделитель" style="width: 100%;">
 </div>
 
 ## 🤝 Поддержка проекта
