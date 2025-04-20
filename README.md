@@ -27,8 +27,6 @@
 
 <div align="center">
 
-<img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGE1b3JuaWZ5NXFlcnlqcXBpNzF2djF5aW0wd3V3ejgwdjJ3dzI2MSZlcD12MV9pbnRlcm5hbF9naWZzX2dpZklkJmN0PWc/UYpelo7WbjZQY/giphy.gif" width="350" alt="Gaming Items">
-
 <h3><i>Покупай и продавай игровые ценности безопасно!</i></h3>
 
 </div>
@@ -296,52 +294,6 @@ flowchart TD
     <td><code>docker-compose exec web python manage.py test</code></td>
   </tr>
 </table>
-
-</div>
-
-<!-- 🎲 ДЕКОРАТИВНЫЙ РАЗДЕЛИТЕЛЬ 🎲 -->
-<div align="center">
-  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" alt="Разделитель" style="width: 100%;">
-</div>
-
-## ❓ Часто задаваемые вопросы (FAQ)
-
-<div align="center" style="max-width: 800px; margin: 0 auto;">
-
-<details>
-  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px;">💰 Как работает система оплаты?</summary>
-  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
-    <p>Наша система использует защищенный эскроу-механизм: деньги замораживаются до подтверждения получения товара покупателем. Мы поддерживаем различные способы оплаты: банковские карты, электронные кошельки и криптовалюты.</p>
-  </div>
-</details>
-
-<details>
-  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px; margin-top: 10px;">🔒 Насколько безопасны сделки?</summary>
-  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
-    <p>Каждая сделка проходит через нашу защищенную систему: используется 2FA для аутентификации, все данные шифруются, а в случае спорных ситуаций работает служба поддержки. Мы также проверяем каждого продавца перед допуском к торговле.</p>
-  </div>
-</details>
-
-<details>
-  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px; margin-top: 10px;">⏱️ Сколько времени занимает сделка?</summary>
-  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
-    <p>После оплаты продавец получает уведомление и должен передать товар в течение 24 часов. Большинство сделок завершаются в течение нескольких часов. Если продавец не выходит на связь, деньги автоматически возвращаются через 72 часа.</p>
-  </div>
-</details>
-
-<details>
-  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px; margin-top: 10px;">🎮 Какие игры поддерживаются?</summary>
-  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
-    <p>Наша платформа поддерживает большинство популярных игр: World of Warcraft, CS:GO, Dota 2, League of Legends, EVE Online, Destiny 2, Escape from Tarkov и многие другие. Если вашей игры нет в списке, напишите в поддержку — мы добавим её в ближайшее время.</p>
-  </div>
-</details>
-
-<details>
-  <summary style="font-weight: bold; cursor: pointer; padding: 10px; background-color: #333; color: white; border-radius: 5px; margin-top: 10px;">📱 Есть ли мобильное приложение?</summary>
-  <div style="padding: 15px; background-color: #f8f8f8; border-radius: 0 0 5px 5px;">
-    <p>В настоящее время мы работаем над мобильным приложением для Android и iOS. Пока оно не выпущено, вы можете использовать адаптивную мобильную версию нашего сайта, которая поддерживает все функции десктопной версии.</p>
-  </div>
-</details>
 
 </div>
 
