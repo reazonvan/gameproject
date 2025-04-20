@@ -337,13 +337,13 @@ flowchart TD
 <div align="center">
 
 <kbd>
-<a href="#">
+<a href="https://github.com/ReazonVan/GameTrade">
   <img src="https://img.shields.io/badge/⭐_Поставьте_звезду-FFAC33?style=for-the-badge&logo=github&logoColor=white" alt="Star">
 </a>
-<a href="#">
+<a href="https://github.com/ReazonVan/GameTrade/issues/new?labels=bug">
   <img src="https://img.shields.io/badge/🐛_Сообщить_об_ошибке-FF5252?style=for-the-badge&logo=github&logoColor=white" alt="Bug">
 </a>
-<a href="#">
+<a href="https://github.com/ReazonVan/GameTrade/issues/new?labels=enhancement">
   <img src="https://img.shields.io/badge/💡_Предложить_идею-00C853?style=for-the-badge&logo=github&logoColor=white" alt="Idea">
 </a>
 </kbd>
